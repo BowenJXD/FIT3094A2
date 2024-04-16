@@ -673,3 +673,37 @@ void ALevelGenerator::Replan(AShip* Ship)
 {
 	//INSERT REPLANNING HERE
 }
+
+bool ALevelGenerator::CollectResource(AShip* Ship, AResource* Resource)
+{
+	bool Result = false;
+	if (!Ship || !Resource) return Result;
+
+	if (Resource->ResourceCount <= 0)
+	{
+		Destroy(Resource); //
+		return Result;
+	}
+
+	Resource->ResourceCount--;
+	switch (Resource->ResourceType)
+	{
+	case GRID_TYPE::Wood:
+		Ship->NumWood++;
+		TotalWood++;
+		break;
+	case GRID_TYPE::Stone:
+		Ship->NumStone++;
+		TotalStone++;
+		break;
+	case GRID_TYPE::Grain:
+		Ship->NumGrain++;
+		TotalGrain++;
+		break;
+	default:
+		break;
+	}
+	Result = true;
+	
+	return Result;
+}

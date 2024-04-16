@@ -107,6 +107,9 @@ public:
 		int NumGrain;
 
 	TMap<STATE_KEY, int> GetWorldState();
+
+	// ----------------- YOUR CODE -----------------
+	
 	TArray<TTuple<STATE_KEY, int, char>> PickGoal();
 	void OnPlanFailed(TMap<STATE_KEY, int> FailedGoalState);
 	void OnPlanAborted(UHLAction* FailedAction);
@@ -116,5 +119,8 @@ public:
 	//CHANGE THIS TO TRUE IN A2B
 	UPROPERTY(EditAnywhere)
 		bool bUseGOAP = false;
-	
+
+	// ----------------- NEW CODE -----------------
+
+	GRID_TYPE GetResourceType();
 };

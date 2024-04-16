@@ -131,6 +131,7 @@ public:
 	int NumReplans = 0;
 	int NumCollisions = 0;
 	
-	
+	// ----------------- NEW CODE -----------------
+	bool CollectResource(AShip* Ship, AResource* Resource);
 	
 };

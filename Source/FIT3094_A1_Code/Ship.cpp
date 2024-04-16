@@ -1,7 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Ship.h"
+
+#include "FindResourceAction.h"
 #include "GOAPPlanner.h"
 #include "LevelGenerator.h"
+#include "HLActions/CollectAction.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -405,12 +408,46 @@ void AShip::OnPlanAborted(UHLAction* FailedAction)
 
 void AShip::AddActions()
 {
-	
+	AvailableActions.Add(CollectAction::StaticClass());
 }
 
 bool AShip::FSMPlan()
 {
 	bool bPlanFound = false;
 	//Make a plan! Then change bPlanFound to true or false depending if a plan was found or not!
+
+	for (int i = 0; i < AvailableActions.Num(); i++)
+	{
+		UHLAction* NewAction = NewObject<UHLAction>(this, AvailableActions[i]);
+		if (NewAction->CheckPreconditions(this, GetWorldState()))
+		{
+			PlannedActions.Add(NewAction);
+			bPlanFound = true;
+			break;
+		}
+	}
+	
 	return bPlanFound;
+}
+
+GRID_TYPE AShip::GetResourceType()
+{
+	GRID_TYPE Result;
+	switch (AgentType)
+	{
+	case Woodcutter:
+		Result = GRID_TYPE::Wood;
+		break;
+	case Stonemason:
+		Result = GRID_TYPE::Stone;
+		break;
+	case Farmer:
+		Result = GRID_TYPE::Grain;
+		break;
+	default: 
+		Result = GRID_TYPE::Wood;
+		break;
+	}
+
+	return Result;
 }

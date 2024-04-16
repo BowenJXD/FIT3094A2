@@ -8,6 +8,24 @@ class AShip;
 
 class UHLAction;
 
+/**
+ * AgentWood,\n
+ * AgentStone,\n
+ * AgentGrain,\n
+ * HasWood,\n
+ * HasStone,\n
+ * HasGrain,\n
+ * TotalWood,\n
+ * TotalStone,\n
+ * TotalGrain,\n
+ * NumBuildingSlots,\n
+ * NumBuildings,\n
+ * NumLumberyards,\n
+ * NumMines,\n
+ * NumFarms,\n
+ * NumPoints,\n
+ * TimeLeft\n
+ */
 enum STATE_KEY
 {
 	AgentWood,
