@@ -3,12 +3,12 @@
 #include "FIT3094_A1_Code/LevelGenerator.h"
 #include "FIT3094_A1_Code/Ship.h"
 
-bool CollectAction::RequiresInRange()
+bool UCollectAction::RequiresInRange()
 {
 	return true;
 }
 
-bool CollectAction::CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> CurrentState)
+bool UCollectAction::CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> CurrentState)
 {
 	bool Result = true;
 	Result &= CurrentState[AgentWood] == 0;
@@ -17,15 +17,15 @@ bool CollectAction::CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> Current
 	return Result;
 }
 
-void CollectAction::ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorState)
+void UCollectAction::ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorState)
 {
 	
 }
 
-void CollectAction::OnStart()
+void UCollectAction::OnStart()
 {
 	float Interval;
-	float Loop = Cast<AResource>(Target)->ResourceCount();
+	float Loop = Cast<AResource>(Target)->ResourceCount;
 	switch (Executor->GetResourceType())
 	{
 	case GRID_TYPE::Wood:
@@ -45,7 +45,7 @@ void CollectAction::OnStart()
 	_Timer = Timer(Interval, Loop);
 }
 
-bool CollectAction::OnTick(float DeltaTime)
+bool UCollectAction::OnTick(float DeltaTime)
 {
 	/*if (!Target)
 	{
@@ -56,7 +56,7 @@ bool CollectAction::OnTick(float DeltaTime)
 	AResource* Resource = Cast<AResource>(Target);
 	if (!Resource) return false;
 
-	if (_Timer.Tick(DeltaTime))
+	if ( _Timer.Tick(DeltaTime))
 	{
 		Result = Executor->LevelGenerator->CollectResource(Executor, Resource);
 	}
@@ -64,7 +64,7 @@ bool CollectAction::OnTick(float DeltaTime)
 	return Result;
 }
 
-void CollectAction::OnFinish()
+void UCollectAction::OnComplete()
 {
 	
 }

@@ -681,7 +681,7 @@ bool ALevelGenerator::CollectResource(AShip* Ship, AResource* Resource)
 
 	if (Resource->ResourceCount <= 0)
 	{
-		Destroy(Resource); //
+		Resource->Destroy();
 		return Result;
 	}
 

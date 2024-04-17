@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "FIT3094_A1_Code/HLAction.h"
+#include "CustomAction.generated.h"
 
 enum ActionState
 {
@@ -8,10 +9,12 @@ enum ActionState
 	Finished,
 };
 
-class CustomAction : public UHLAction
+UCLASS()
+class UCustomAction : public UHLAction
 {
 public:
-
+	GENERATED_BODY()
+	
 	AShip* Executor;
 	ActionState State = NotStarted;
 
@@ -25,7 +28,9 @@ public:
 	 * @brief would change State to Finished if the action is done
 	 * @return 
 	 */
-	 virtual bool OnTick(float DeltaTime) PURE_VIRTUAL(CustomAction::OnTick, return false;);
+	virtual bool OnTick(float DeltaTime) PURE_VIRTUAL(CustomAction::OnTick, return false;);
 
-	virtual void OnFinish() PURE_VIRTUAL(CustomAction::OnFinish);
+	virtual void OnComplete() PURE_VIRTUAL(CustomAction::OnComplete);
+
+	virtual void OnFail() PURE_VIRTUAL(CustomAction::OnFail);
 };

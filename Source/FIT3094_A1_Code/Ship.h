@@ -123,4 +123,6 @@ public:
 	// ----------------- NEW CODE -----------------
 
 	GRID_TYPE GetResourceType();
+
+	// Collect n Destroy the resource point and change to shallow water
 };

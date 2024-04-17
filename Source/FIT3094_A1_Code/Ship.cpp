@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Ship.h"
 
-#include "FindResourceAction.h"
 #include "GOAPPlanner.h"
 #include "LevelGenerator.h"
 #include "HLActions/CollectAction.h"
+#include "HLActions/DepositAction.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -162,8 +162,8 @@ void AShip::OnMoveTick(float DeltaTime)
 	
 	if(Path.Num() > 0)
 	{
-		bAtGoal = false;
-		bRecentlyCrashed = false;
+		bAtGoal = true;
+		bRecentlyCrashed = true;
 		if(!bAtNextNode)
 		{
 			FVector CurrentPosition = GetActorLocation();
@@ -408,7 +408,8 @@ void AShip::OnPlanAborted(UHLAction* FailedAction)
 
 void AShip::AddActions()
 {
-	AvailableActions.Add(CollectAction::StaticClass());
+	AvailableActions.Add(UCollectAction::StaticClass());
+	AvailableActions.Add(UDepositAction::StaticClass());
 }
 
 bool AShip::FSMPlan()

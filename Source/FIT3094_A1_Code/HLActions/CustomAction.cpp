@@ -1,11 +1,11 @@
 ﻿#include "CustomAction.h"
 
-bool CustomAction::IsActionDone()
+bool UCustomAction::IsActionDone()
 {
 	return State == Finished;
 }
 
-bool CustomAction::Execute(AShip* Ship, float DeltaTime)
+bool UCustomAction::Execute(AShip* Ship, float DeltaTime)
 {
 	bool Result = false;	
 	if (State == NotStarted) {
@@ -17,7 +17,14 @@ bool CustomAction::Execute(AShip* Ship, float DeltaTime)
 		Result = OnTick(DeltaTime);
 	}
 	if (State == Finished) {
-		OnFinish();
+		if (Result)
+		{
+			OnComplete();
+		}
+		else
+		{
+			OnFail();
+		}
 	}
 	
 	return Result;

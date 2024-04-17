@@ -1,10 +1,15 @@
 ﻿#pragma once
 #include "CustomAction.h"
-#include "FIT3094_A1_Code/Util/Timer.h"
+#include "FIT3094_A1_Code/Resource.h"
+#include "FIT3094_A1_Code/Timer.h"
+#include "CollectAction.generated.h"
 
-class FIT3094_A1_CODE_API CollectAction : public CustomAction
+UCLASS()
+class FIT3094_A1_CODE_API UCollectAction : public UCustomAction
 {	
 public:
+	GENERATED_BODY()
+	
 	virtual bool RequiresInRange() override;
 	
 	virtual bool CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> CurrentState) override;
@@ -15,7 +20,7 @@ public:
 	
 	virtual bool OnTick(float DeltaTime) override;
 
-	virtual void OnFinish() override;
+	virtual void OnComplete() override;
 
 	Timer _Timer;
 };
