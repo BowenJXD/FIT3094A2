@@ -5,6 +5,12 @@ bool UCustomAction::IsActionDone()
 	return State == Finished;
 }
 
+bool UCustomAction::SetupAction(AShip* Ship)
+{
+	Executor = Ship;
+	return true;
+}
+
 bool UCustomAction::Execute(AShip* Ship, float DeltaTime)
 {
 	bool Result = false;	
@@ -27,4 +33,18 @@ bool UCustomAction::Execute(AShip* Ship, float DeltaTime)
 	}
 	
 	return Result;
+}
+
+bool UCustomAction::OnTick(float DeltaTime)
+{
+	State = Finished;
+	return true;
+}
+
+void UCustomAction::OnComplete()
+{
+}
+
+void UCustomAction::OnFail()
+{
 }

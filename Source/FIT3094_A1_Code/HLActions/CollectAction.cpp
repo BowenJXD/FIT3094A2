@@ -10,7 +10,7 @@ bool UCollectAction::RequiresInRange()
 
 bool UCollectAction::SetupAction(AShip* Ship)
 {
-	Executor = Ship;
+	Super::SetupAction(Ship);
 	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, Ship->GetResourceType());
 	return Target != nullptr;
 }
@@ -36,13 +36,25 @@ void UCollectAction::OnStart()
 	switch (Executor->GetResourceType())
 	{
 	case GRID_TYPE::Wood:
-		Interval = 0.1f;
+		Interval = 2;
+		if (Executor->AgentType == AShip::AGENT_TYPE::Woodcutter)
+		{
+			Interval /= 3;
+		}
 		break;
 	case GRID_TYPE::Stone:
-		Interval = 3.0f;
+		Interval = 3;
+		if (Executor->AgentType == AShip::AGENT_TYPE::Stonemason)
+		{
+			Interval /= 3;
+		}
 		break;
 	case GRID_TYPE::Grain:
-		Interval = 5.0f;
+		Interval = 5;
+		if (Executor->AgentType == AShip::AGENT_TYPE::Farmer)
+		{
+			Interval /= 3;
+		}
 		break;
 	default:
 		Interval = 0;
@@ -59,19 +71,16 @@ bool UCollectAction::OnTick(float DeltaTime)
 		Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, Ship->GetResourceType());
 		return false;
 	}*/
-	bool Result = true;
 	AResource* Resource = Cast<AResource>(Target);
 	if (!Resource) return false;
 
 	if ( _Timer.Tick(DeltaTime))
 	{
-		Result = Executor->LevelGenerator->CollectResource(Executor, Resource);
+		if (!Executor->LevelGenerator->CollectResource(Executor, Resource))
+		{
+			State = Finished;
+		}
 	}
 	
-	return Result;
-}
-
-void UCollectAction::OnComplete()
-{
-	
+	return true;
 }

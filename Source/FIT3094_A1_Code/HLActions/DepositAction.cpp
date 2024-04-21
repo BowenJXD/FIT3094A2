@@ -10,6 +10,7 @@ bool UDepositAction::RequiresInRange()
 
 bool UDepositAction::SetupAction(AShip* Ship)
 {
+	Super::SetupAction(Ship);
 	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, GRID_TYPE::Home);
 	return Target != nullptr;
 }

@@ -19,6 +19,8 @@ public:
 	ActionState State = NotStarted;
 
 	virtual bool IsActionDone() override;
+
+	virtual bool SetupAction(AShip* Ship) override;
 	
 	virtual bool Execute(AShip* Ship, float DeltaTime) override;
 	
@@ -26,14 +28,11 @@ public:
 
 	/**
 	 * @brief would change State to Finished if the action is done
-	 * @return 
+	 * @return false when failed
 	 */
-	virtual bool OnTick(float DeltaTime) PURE_VIRTUAL(CustomAction::OnTick, {
-		State = Finished;
-		return true;
-	});
+	virtual bool OnTick(float DeltaTime);
 
-	virtual void OnComplete() PURE_VIRTUAL(CustomAction::OnComplete);
+	virtual void OnComplete();
 
-	virtual void OnFail() PURE_VIRTUAL(CustomAction::OnFail);
+	virtual void OnFail();
 };

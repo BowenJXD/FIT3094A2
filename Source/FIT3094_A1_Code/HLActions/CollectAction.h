@@ -22,7 +22,5 @@ public:
 	
 	virtual bool OnTick(float DeltaTime) override;
 
-	virtual void OnComplete() override;
-
 	Timer _Timer;
 };
