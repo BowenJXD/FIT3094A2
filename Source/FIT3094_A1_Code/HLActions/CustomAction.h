@@ -28,7 +28,10 @@ public:
 	 * @brief would change State to Finished if the action is done
 	 * @return 
 	 */
-	virtual bool OnTick(float DeltaTime) PURE_VIRTUAL(CustomAction::OnTick, return false;);
+	virtual bool OnTick(float DeltaTime) PURE_VIRTUAL(CustomAction::OnTick, {
+		State = Finished;
+		return true;
+	});
 
 	virtual void OnComplete() PURE_VIRTUAL(CustomAction::OnComplete);
 

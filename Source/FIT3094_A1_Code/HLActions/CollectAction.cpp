@@ -8,6 +8,13 @@ bool UCollectAction::RequiresInRange()
 	return true;
 }
 
+bool UCollectAction::SetupAction(AShip* Ship)
+{
+	Executor = Ship;
+	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, Ship->GetResourceType());
+	return Target != nullptr;
+}
+
 bool UCollectAction::CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> CurrentState)
 {
 	bool Result = true;
@@ -29,7 +36,7 @@ void UCollectAction::OnStart()
 	switch (Executor->GetResourceType())
 	{
 	case GRID_TYPE::Wood:
-		Interval = 2.0f;
+		Interval = 0.1f;
 		break;
 	case GRID_TYPE::Stone:
 		Interval = 3.0f;

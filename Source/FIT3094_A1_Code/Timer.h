@@ -8,6 +8,8 @@ public:
 	int Loop;
 	int LoopRemaining;
 
+	Timer();
+	
 	Timer(float Duration, int Loop);
 
 	/**

@@ -442,7 +442,7 @@ void ALevelGenerator::CheckForCollisions()
 	{
 		if(!Ships[i]->bAtNextNode)
 		{
-			return;
+			return;	
 		}
 	}
 
@@ -679,30 +679,29 @@ bool ALevelGenerator::CollectResource(AShip* Ship, AResource* Resource)
 	bool Result = false;
 	if (!Ship || !Resource) return Result;
 
-	if (Resource->ResourceCount <= 0)
-	{
-		Resource->Destroy();
-		return Result;
-	}
-
 	Resource->ResourceCount--;
 	switch (Resource->ResourceType)
 	{
 	case GRID_TYPE::Wood:
 		Ship->NumWood++;
-		TotalWood++;
 		break;
 	case GRID_TYPE::Stone:
 		Ship->NumStone++;
-		TotalStone++;
 		break;
 	case GRID_TYPE::Grain:
 		Ship->NumGrain++;
-		TotalGrain++;
 		break;
 	default:
 		break;
 	}
+	
+	if (Resource->ResourceCount <= 0)
+	{
+		Resource->Destroy();
+		Ship->LevelGenerator->FindGridNode(Resource)->GridType = GRID_TYPE::ShallowWater;
+		return Result;
+	}
+	
 	Result = true;
 	
 	return Result;

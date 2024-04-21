@@ -1,5 +1,13 @@
 ﻿#include "Timer.h"
 
+Timer::Timer()
+{
+	this->Duration = 0;
+	this->TimeRemaining = 0;
+	this->Loop = 0;
+	this->LoopRemaining = 0;
+}
+
 Timer::Timer(float Duration, int Loop)
 {
 	this->Duration = Duration;

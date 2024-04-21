@@ -162,8 +162,8 @@ void AShip::OnMoveTick(float DeltaTime)
 	
 	if(Path.Num() > 0)
 	{
-		bAtGoal = true;
-		bRecentlyCrashed = true;
+		bAtGoal = false;
+		bRecentlyCrashed = false;
 		if(!bAtNextNode)
 		{
 			FVector CurrentPosition = GetActorLocation();
@@ -201,6 +201,9 @@ void AShip::OnMoveTick(float DeltaTime)
 	}
 	else
 	{
+		LevelGenerator->CheckForCollisions();
+		bAtGoal = true;
+		bRecentlyCrashed = true;
 		for(int i = 0; i < PathDisplayActors.Num(); i++)
 		{
 			if(PathDisplayActors[i])
@@ -221,6 +224,8 @@ void AShip::OnMoveExit()
 
 void AShip::OnExecuteEnter()
 {
+	bAtNextNode = true;
+
 }
 
 void AShip::OnExecuteTick(float DeltaTime)
@@ -422,6 +427,10 @@ bool AShip::FSMPlan()
 		UHLAction* NewAction = NewObject<UHLAction>(this, AvailableActions[i]);
 		if (NewAction->CheckPreconditions(this, GetWorldState()))
 		{
+			if (!NewAction->SetupAction(this))
+			{
+				continue;
+			}
 			PlannedActions.Add(NewAction);
 			bPlanFound = true;
 			break;

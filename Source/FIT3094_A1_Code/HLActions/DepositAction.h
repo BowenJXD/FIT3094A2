@@ -11,9 +11,13 @@ public:
 	
 	virtual bool RequiresInRange() override;
 
+	virtual bool SetupAction(AShip* Ship) override;
+
 	virtual bool CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> CurrentState) override;
 
 	virtual void ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorState) override;
 	
-	virtual bool Execute(AShip* Ship, float DeltaTime) override;
+	virtual void OnStart() override;
+
+	virtual bool OnTick(float DeltaTime) override;
 };

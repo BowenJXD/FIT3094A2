@@ -11,6 +11,8 @@ public:
 	GENERATED_BODY()
 	
 	virtual bool RequiresInRange() override;
+
+	virtual bool SetupAction(AShip* Ship) override;
 	
 	virtual bool CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> CurrentState) override;
 

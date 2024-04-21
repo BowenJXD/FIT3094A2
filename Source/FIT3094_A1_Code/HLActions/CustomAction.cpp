@@ -9,7 +9,6 @@ bool UCustomAction::Execute(AShip* Ship, float DeltaTime)
 {
 	bool Result = false;	
 	if (State == NotStarted) {
-		Executor = Ship;
 		OnStart();
 		State = Running;
 	}
