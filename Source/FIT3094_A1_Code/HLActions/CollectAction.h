@@ -12,8 +12,6 @@ public:
 
 	int PlannedResourceAmount;
 	
-	Timer _Timer;
-	
 	virtual bool RequiresInRange() override;
 
 	virtual bool SetupAction(AShip* Ship) override;

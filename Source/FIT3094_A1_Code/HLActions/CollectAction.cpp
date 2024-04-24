@@ -36,7 +36,9 @@ bool UCollectAction::SetupAction(AShip* Ship)
 	if (!Target) return false;
 	PlannedResourceAmount = Cast<AResource>(Target)->ResourceCount;
 	LG->AlterPlannedResources(ShipType, PlannedResourceAmount);
-	return true;
+
+	if (Target) Agent->LevelGenerator->ResourceOccupancy.Add(Cast<AResource>(Target), Agent);
+	return Target != nullptr;
 }
 
 bool UCollectAction::CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> CurrentState)
@@ -56,25 +58,25 @@ void UCollectAction::ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorSt
 void UCollectAction::OnStart()
 {
 	float Interval;
-	switch (Executor->GetResourceType())
+	switch (Agent->GetResourceType())
 	{
 	case GRID_TYPE::Wood:
 		Interval = 2;
-		if (Executor->AgentType == AShip::AGENT_TYPE::Woodcutter)
+		if (Agent->AgentType == AShip::AGENT_TYPE::Woodcutter)
 		{
 			Interval /= 1.5;
 		}
 		break;
 	case GRID_TYPE::Stone:
 		Interval = 3;
-		if (Executor->AgentType == AShip::AGENT_TYPE::Stonemason)
+		if (Agent->AgentType == AShip::AGENT_TYPE::Stonemason)
 		{
 			Interval /= 1.5;
 		}
 		break;
 	case GRID_TYPE::Grain:
 		Interval = 5;
-		if (Executor->AgentType == AShip::AGENT_TYPE::Farmer)
+		if (Agent->AgentType == AShip::AGENT_TYPE::Farmer)
 		{
 			Interval /= 1.5;
 		}
@@ -89,23 +91,12 @@ void UCollectAction::OnStart()
 
 bool UCollectAction::OnTick(float DeltaTime)
 {
-	/*if (!Target)
-	{
-		Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, Ship->GetResourceType());
-		return false;
-	}*/
-
-	if (!Target || !IsValid(Target))
-	{
-		State = Finished;
-		return false;
-	}
 	AResource* Resource = Cast<AResource>(Target);
 	if (_Timer.Tick(DeltaTime))
 	{
 		if (!Resource) return false;
-		int Collected = Executor->LevelGenerator->CollectResource(Executor, Resource);
-		Executor->LevelGenerator->AlterPlannedResources(Executor->GetResourceType(), -PlannedResourceAmount + Collected);
+		int Collected = Agent->LevelGenerator->CollectResource(Agent, Resource);
+		Agent->LevelGenerator->AlterPlannedResources(Agent->GetResourceType(), -PlannedResourceAmount + Collected);
 		State = Finished;
 	}
 	

@@ -50,3 +50,20 @@ void AResource::ChangeMaterial()
 	}
 }
 
+FString AResource::GetResourceType()
+{
+	switch(ResourceType)
+	{
+	case GRID_TYPE::Wood:
+		return "Wood";
+	case GRID_TYPE::Stone:
+		return "Stone";
+	case GRID_TYPE::Grain:
+		return "Grain";
+	case GRID_TYPE::BuildingSlot:
+		return "BuildingSlot";
+	default: ;
+	}
+	return "Unknown";
+}
+

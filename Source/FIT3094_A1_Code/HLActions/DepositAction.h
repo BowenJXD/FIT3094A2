@@ -10,8 +10,6 @@ class UDepositAction : public UCustomAction
 public:
 	GENERATED_BODY()
 	
-	Timer _Timer;
-	
 	virtual bool RequiresInRange() override;
 
 	virtual bool SetupAction(AShip* Ship) override;

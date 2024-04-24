@@ -99,7 +99,7 @@ void AShip::OnIdleTick(float DeltaTime)
 		{
 			if(FSMPlan())
 			{
-				UE_LOG(LogTemp, Warning, TEXT("%s has found a plan. Executing plan!"), *GetName());
+				UE_LOG(LogTemp, Warning, TEXT("%s has found a plan. Executing plan: %s!"), *GetName(), *PlannedActions[0]->GetName());
 				ChangeState(State_Execute);
 			}
 			else

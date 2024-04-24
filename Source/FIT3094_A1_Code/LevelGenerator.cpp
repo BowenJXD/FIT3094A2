@@ -718,6 +718,7 @@ int ALevelGenerator::CollectResource(AShip* Ship, AResource* Resource)
 	{
 		Resource->Destroy();
 		Ship->LevelGenerator->FindGridNode(Resource)->GridType = GRID_TYPE::ShallowWater;
+		UE_LOG(LogTemp, Warning, TEXT("%s of type %s Deleted!"), *Resource->GetName(), *Resource->GetResourceType());
 	}
 	
 	return Result;
@@ -756,7 +757,7 @@ int ALevelGenerator::DepositResource(AShip* Ship)
 	return Result;
 }
 
-AActor* ALevelGenerator::CalculateNearestGoal(AActor* Ship, TArray<GRID_TYPE> ResourceType)
+AActor* ALevelGenerator::CalculateNearestGoal(AActor* Ship, TArray<GRID_TYPE> ResourceType = {GRID_TYPE::Wood, GRID_TYPE::Stone, GRID_TYPE::Grain})
 {
 	float ShortestPath = 999999;
 
@@ -766,7 +767,9 @@ AActor* ALevelGenerator::CalculateNearestGoal(AActor* Ship, TArray<GRID_TYPE> Re
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AResource::StaticClass(), Resources);
 	for(AActor* Resource : Resources)
 	{
-		if(!IsValid(Resource) || Resource->GetName().Contains("Path"))
+		if(!IsValid(Resource)
+			|| Resource->GetName().Contains("Path")
+			|| ResourceOccupancy.Contains(Cast<AResource>(Resource)))
 		{
 			continue;
 		}

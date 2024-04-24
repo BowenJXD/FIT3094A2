@@ -11,7 +11,8 @@ bool UDepositAction::RequiresInRange()
 bool UDepositAction::SetupAction(AShip* Ship)
 {
 	Super::SetupAction(Ship);
-	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, GRID_TYPE::Home);
+	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, TArray{GRID_TYPE::Home});
+	/*if (Target) Agent->LevelGenerator->ResourceOccupancy.Add(Cast<AResource>(Target), Agent);*/
 	return Target != nullptr;
 }
 
@@ -39,17 +40,12 @@ void UDepositAction::OnStart()
 
 bool UDepositAction::OnTick(float DeltaTime)
 {
-	if (!Target || !IsValid(Target))
-	{
-		State = Finished;
-		return false;
-	}
 	AResource* Resource = Cast<AResource>(Target);
 	if (_Timer.Tick(DeltaTime))
 	{
 		if (!Resource) return false;
-		int Deposited = Executor->LevelGenerator->DepositResource(Executor);
-		Executor->LevelGenerator->AlterPlannedResources(Executor->GetResourceType(), Deposited);
+		int Deposited = Agent->LevelGenerator->DepositResource(Agent);
+		Agent->LevelGenerator->AlterPlannedResources(Agent->GetResourceType(), Deposited);
 		State = Finished;
 	}
 	

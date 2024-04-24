@@ -45,4 +45,6 @@ public:
 	int XPos;
 	int YPos;
 
+	// ------------ New Code ------------
+	FString GetResourceType();
 };

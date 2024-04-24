@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "FIT3094_A1_Code/HLAction.h"
+#include "FIT3094_A1_Code/Timer.h"
 #include "CustomAction.generated.h"
 
 enum ActionState
@@ -15,7 +16,8 @@ class UCustomAction : public UHLAction
 public:
 	GENERATED_BODY()
 	
-	AShip* Executor;
+	AShip* Agent;
+	Timer _Timer;
 	ActionState State = NotStarted;
 
 	virtual bool IsActionDone() override;
@@ -24,7 +26,7 @@ public:
 	
 	virtual bool Execute(AShip* Ship, float DeltaTime) override;
 	
-	virtual void OnStart() PURE_VIRTUAL(CustomAction::OnStart);
+	virtual void OnStart();
 
 	/**
 	 * @brief would change State to Finished if the action is done

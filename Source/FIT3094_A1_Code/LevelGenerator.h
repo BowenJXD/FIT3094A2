@@ -143,5 +143,7 @@ public:
 	int PlannedStone = 0;
 	int PlannedGrain = 0;
 
+	TMap<AResource*, AShip*> ResourceOccupancy = TMap<AResource*, AShip*>();
+
 	void AlterPlannedResources(GRID_TYPE ResourceType, int Amount);
 };

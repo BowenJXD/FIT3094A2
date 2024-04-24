@@ -14,11 +14,13 @@ bool UBuildAction::RequiresInRange()
 bool UBuildAction::SetupAction(AShip* Ship)
 {
 	Super::SetupAction(Ship);
-	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, GRID_TYPE::BuildingSlot);
+	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, TArray{GRID_TYPE::BuildingSlot});
 	if (!Target) return false;
-	Executor->LevelGenerator->TotalWood -= ABuilding::GetResourceCost(BuildingType)[0];
-	Executor->LevelGenerator->TotalStone -= ABuilding::GetResourceCost(BuildingType)[1];
-	Executor->LevelGenerator->TotalGrain -= ABuilding::GetResourceCost(BuildingType)[2];
+	Agent->LevelGenerator->TotalWood -= ABuilding::GetResourceCost(BuildingType)[0];
+	Agent->LevelGenerator->TotalStone -= ABuilding::GetResourceCost(BuildingType)[1];
+	Agent->LevelGenerator->TotalGrain -= ABuilding::GetResourceCost(BuildingType)[2];
+
+	if (Target) Agent->LevelGenerator->ResourceOccupancy.Add(Cast<AResource>(Target), Agent);
 	return Target != nullptr;
 }
 
@@ -49,21 +51,18 @@ void UBuildAction::OnStart()
 
 bool UBuildAction::OnTick(float DeltaTime)
 {
-	if (!Target || !IsValid(Target))
-	{
-		State = Finished;
-		return false;
-	}
 	AResource* Resource = Cast<AResource>(Target);
 	if (_Timer.Tick(DeltaTime))
 	{
-		auto Building = GetWorld()->SpawnActor<ABuilding>(Executor->LevelGenerator->BuildingBlueprint,
+		auto Building = GetWorld()->SpawnActor<ABuilding>(Agent->LevelGenerator->BuildingBlueprint,
 														  Target->GetActorLocation(), FRotator::ZeroRotator);
 		Building->BuildingType = BuildingType;
-		Executor->LevelGenerator->Points += Building->GetPointsProvided();
+		Agent->LevelGenerator->Points += Building->GetPointsProvided();
 		
-		Executor->LevelGenerator->FindGridNode(Resource)->GridType = GRID_TYPE::ShallowWater;
+		UE_LOG(LogTemp, Warning, TEXT("%s of type %s Deleted!"), *Resource->GetName(), *Resource->GetResourceType());
 		Target->Destroy();
+		Agent->LevelGenerator->FindGridNode(Resource)->GridType = GRID_TYPE::ShallowWater;
+		
 		State = Finished;
 	}
 
