@@ -1,17 +1,26 @@
-﻿#pragma once
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Building.h"
 #include "CustomAction.h"
 #include "FIT3094_A1_Code/HLAction.h"
 #include "FIT3094_A1_Code/Timer.h"
-#include "DepositAction.generated.h"
+#include "BuildAction.generated.h"
 
+/**
+ * 
+ */
 UCLASS()
-class UDepositAction : public UCustomAction
+class FIT3094_A1_CODE_API UBuildAction : public UCustomAction
 {
-public:
 	GENERATED_BODY()
-	
-	Timer _Timer;
-	
+
+public:
+	BUILDING_TYPE BuildingType = BUILDING_TYPE::University;
+	TSubclassOf<ABuilding> BuildingBlueprint;
+
 	virtual bool RequiresInRange() override;
 
 	virtual bool SetupAction(AShip* Ship) override;
@@ -23,4 +32,8 @@ public:
 	virtual void OnStart() override;
 
 	virtual bool OnTick(float DeltaTime) override;
+
+	virtual void OnComplete() override;
+
+	Timer _Timer;
 };

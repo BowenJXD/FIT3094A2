@@ -121,6 +121,7 @@ public:
 	void CalculatePath(AShip* Ship, GridNode* Resource);
 	TArray<GridNode*> GetNeighbours(GridNode* NodeToCheck);
 	void CheckForCollisions();
+	
 	AActor* CalculateNearestGoal(AActor* Ship, GRID_TYPE ResourceType);
 	GridNode* FindGridNode(AActor* ActorResource);
 	void Replan(AShip* Ship);
@@ -132,6 +133,15 @@ public:
 	int NumCollisions = 0;
 	
 	// ----------------- NEW CODE -----------------
-	bool CollectResource(AShip* Ship, AResource* Resource);
-	
+	int CollectResource(AShip* Ship, AResource* Resource);
+
+	int DepositResource(AShip* Ship);
+
+	AActor* CalculateNearestGoal(AActor* Ship, TArray<GRID_TYPE> ResourceType);
+
+	int PlannedWood = 0;
+	int PlannedStone = 0;
+	int PlannedGrain = 0;
+
+	void AlterPlannedResources(GRID_TYPE ResourceType, int Amount);
 };

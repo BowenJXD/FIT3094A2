@@ -674,22 +674,41 @@ void ALevelGenerator::Replan(AShip* Ship)
 	//INSERT REPLANNING HERE
 }
 
-bool ALevelGenerator::CollectResource(AShip* Ship, AResource* Resource)
+int ALevelGenerator::CollectResource(AShip* Ship, AResource* Resource)
 {
-	bool Result = false;
+	int Result = 0;
 	if (!Ship || !Resource) return Result;
 
 	Resource->ResourceCount--;
+	Result++;
 	switch (Resource->ResourceType)
 	{
 	case GRID_TYPE::Wood:
 		Ship->NumWood++;
+		if (Ship->AgentType == AShip::AGENT_TYPE::Woodcutter && Resource->ResourceCount > 0)
+		{
+			Ship->NumWood++;
+			Result++;
+			Resource->ResourceCount--;
+		}
 		break;
 	case GRID_TYPE::Stone:
 		Ship->NumStone++;
+		if (Ship->AgentType == AShip::AGENT_TYPE::Stonemason && Resource->ResourceCount > 0)
+		{
+			Ship->NumStone++;
+			Result++;
+			Resource->ResourceCount--;
+		}
 		break;
 	case GRID_TYPE::Grain:
 		Ship->NumGrain++;
+		if (Ship->AgentType == AShip::AGENT_TYPE::Farmer && Resource->ResourceCount > 0)
+		{
+			Ship->NumGrain++;
+			Result++;
+			Resource->ResourceCount--;
+		}
 		break;
 	default:
 		break;
@@ -699,10 +718,89 @@ bool ALevelGenerator::CollectResource(AShip* Ship, AResource* Resource)
 	{
 		Resource->Destroy();
 		Ship->LevelGenerator->FindGridNode(Resource)->GridType = GRID_TYPE::ShallowWater;
-		return Result;
 	}
 	
-	Result = true;
+	return Result;
+}
+
+int ALevelGenerator::DepositResource(AShip* Ship)
+{
+	int Result = 0;
+	if (!Ship) return Result;
+
+	if (Ship->NumWood > 0)
+	{
+		float Count = Ship->NumWood;
+		Ship->NumWood -= Count;
+		Result += Count;
+		TotalWood += Count;
+		Points += Count * 1;
+	}
+	if (Ship->NumStone > 0)
+	{
+		float Count = Ship->NumStone;
+		Ship->NumStone -= Count;
+		Result += Count;
+		TotalStone += Count;
+		Points += Count * 2;
+	}
+	if (Ship->NumGrain > 0)
+	{
+		float Count = Ship->NumGrain;
+		Ship->NumGrain -= Count;
+		Result += Count;
+		TotalGrain += Count;
+		Points += Count * 3;
+	}
 	
 	return Result;
+}
+
+AActor* ALevelGenerator::CalculateNearestGoal(AActor* Ship, TArray<GRID_TYPE> ResourceType)
+{
+	float ShortestPath = 999999;
+
+	AActor* ClosestResource = nullptr;
+
+	TArray<AActor*> Resources;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AResource::StaticClass(), Resources);
+	for(AActor* Resource : Resources)
+	{
+		if(!IsValid(Resource) || Resource->GetName().Contains("Path"))
+		{
+			continue;
+		}
+		for(GRID_TYPE Type : ResourceType)
+		{
+			if(Cast<AResource>(Resource)->ResourceType == Type)
+			{
+				float CurrentPath = FVector::Dist(Ship->GetActorLocation(), Resource->GetActorLocation());
+				if(CurrentPath < ShortestPath)
+				{
+					ShortestPath = CurrentPath;
+					ClosestResource = Resource;
+				}
+			}
+		}
+	}
+	
+	return ClosestResource;
+}
+
+void ALevelGenerator::AlterPlannedResources(GRID_TYPE ResourceType, int Amount)
+{
+	switch (ResourceType)
+	{
+	case GRID_TYPE::Wood:
+		PlannedWood += Amount;
+		break;
+	case GRID_TYPE::Stone:
+		PlannedStone += Amount;
+		break;
+	case GRID_TYPE::Grain:
+		PlannedGrain += Amount;
+		break;
+	default:
+		break;
+	}
 }

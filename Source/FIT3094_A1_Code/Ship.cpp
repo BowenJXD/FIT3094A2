@@ -3,6 +3,7 @@
 
 #include "GOAPPlanner.h"
 #include "LevelGenerator.h"
+#include "HLActions/BuildAction.h"
 #include "HLActions/CollectAction.h"
 #include "HLActions/DepositAction.h"
 #include "Kismet/GameplayStatics.h"
@@ -73,7 +74,7 @@ void AShip::Tick(float DeltaTime)
 
 void AShip::OnIdleEnter()
 {
-	
+		
 }
 
 void AShip::OnIdleTick(float DeltaTime)
@@ -202,6 +203,7 @@ void AShip::OnMoveTick(float DeltaTime)
 	else
 	{
 		LevelGenerator->CheckForCollisions();
+		bAtNextNode = true;
 		bAtGoal = true;
 		bRecentlyCrashed = true;
 		for(int i = 0; i < PathDisplayActors.Num(); i++)
@@ -413,6 +415,7 @@ void AShip::OnPlanAborted(UHLAction* FailedAction)
 
 void AShip::AddActions()
 {
+	AvailableActions.Add(UBuildAction::StaticClass());
 	AvailableActions.Add(UCollectAction::StaticClass());
 	AvailableActions.Add(UDepositAction::StaticClass());
 }

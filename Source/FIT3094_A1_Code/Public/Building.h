@@ -45,5 +45,7 @@ public:
 	FVector GetResourceCost();
 	static FVector GetResourceCost(BUILDING_TYPE Type);
 	int GetPointsProvided();
-	
+
+	// ------------------ New Code ------------------
+	static float GetTimeRequired(BUILDING_TYPE Type);
 };

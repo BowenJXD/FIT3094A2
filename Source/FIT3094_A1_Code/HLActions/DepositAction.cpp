@@ -33,25 +33,26 @@ void UDepositAction::ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorSt
 
 void UDepositAction::OnStart()
 {
-	auto Node = Cast<AResource>(Target);
-	if (Node->ResourceType == GRID_TYPE::Home)
-	{
-		float Amount = Executor->NumWood;
-		Executor->NumWood = 0;
-		Executor->LevelGenerator->TotalWood += Amount;
-
-		float Amount2 = Executor->NumStone;
-		Executor->NumStone = 0;
-		Executor->LevelGenerator->TotalStone += Amount2;
-
-		float Amount3 = Executor->NumGrain;
-		Executor->NumGrain = 0;
-		Executor->LevelGenerator->TotalGrain += Amount3;
-	}
+	float Interval = 1;
+	_Timer = Timer(Interval);
 }
 
 bool UDepositAction::OnTick(float DeltaTime)
 {
-	return Super::OnTick(DeltaTime);
+	if (!Target || !IsValid(Target))
+	{
+		State = Finished;
+		return false;
+	}
+	AResource* Resource = Cast<AResource>(Target);
+	if (_Timer.Tick(DeltaTime))
+	{
+		if (!Resource) return false;
+		int Deposited = Executor->LevelGenerator->DepositResource(Executor);
+		Executor->LevelGenerator->AlterPlannedResources(Executor->GetResourceType(), Deposited);
+		State = Finished;
+	}
+	
+	return true;
 }
 

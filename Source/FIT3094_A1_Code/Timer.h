@@ -10,7 +10,7 @@ public:
 
 	Timer();
 	
-	Timer(float Duration, int Loop);
+	Timer(float Duration, int Loop = 1);
 
 	/**
 	 * @brief 

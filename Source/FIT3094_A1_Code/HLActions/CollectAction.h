@@ -9,6 +9,10 @@ class FIT3094_A1_CODE_API UCollectAction : public UCustomAction
 {	
 public:
 	GENERATED_BODY()
+
+	int PlannedResourceAmount;
+	
+	Timer _Timer;
 	
 	virtual bool RequiresInRange() override;
 
@@ -21,6 +25,4 @@ public:
 	virtual void OnStart() override;
 	
 	virtual bool OnTick(float DeltaTime) override;
-
-	Timer _Timer;
 };
