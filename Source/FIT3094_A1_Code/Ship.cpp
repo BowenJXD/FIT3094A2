@@ -7,6 +7,7 @@
 #include "HLActions/CollectAction.h"
 #include "HLActions/DepositAction.h"
 #include "Kismet/GameplayStatics.h"
+#include "Util/StatisticExporter.h"
 
 // Sets default values
 AShip::AShip()
@@ -79,6 +80,8 @@ void AShip::OnIdleEnter()
 
 void AShip::OnIdleTick(float DeltaTime)
 {
+	StatisticsExporter::Get().IdleTime += DeltaTime;
+	
 	if(FailedPlanCooldown <= MaxIdleTime)
 	{
 		if(bUseGOAP)
@@ -143,6 +146,8 @@ void AShip::OnMoveEnter()
 		{
 			GoalNode = GoalLocation;
 			LevelGenerator->CalculatePath(this, GoalLocation);
+			StatisticsExporter::Get().PathLength += Path.Num(); //
+			StatisticsExporter::Get().PathCount++; //
 		}
 		else
 		{
@@ -159,6 +164,8 @@ void AShip::OnMoveEnter()
 
 void AShip::OnMoveTick(float DeltaTime)
 {
+	StatisticsExporter::Get().MoveTime += DeltaTime;
+	
 	UHLAction* CurrentAction = PlannedActions[0];
 	
 	if(Path.Num() > 0)

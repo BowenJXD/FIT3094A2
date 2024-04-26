@@ -5,6 +5,7 @@
 
 #include "FIT3094_A1_Code/LevelGenerator.h"
 #include "FIT3094_A1_Code/Ship.h"
+#include "FIT3094_A1_Code/Util/StatisticExporter.h"
 
 bool UBuildAction::RequiresInRange()
 {
@@ -58,6 +59,7 @@ bool UBuildAction::OnTick(float DeltaTime)
 														  Target->GetActorLocation(), FRotator::ZeroRotator);
 		Building->BuildingType = BuildingType;
 		Agent->LevelGenerator->Points += Building->GetPointsProvided();
+		StatisticsExporter::Get().University++;
 		
 		UE_LOG(LogTemp, Warning, TEXT("%s of type %s Deleted!"), *Resource->GetName(), *Resource->GetResourceType());
 		Target->Destroy();

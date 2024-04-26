@@ -7,6 +7,7 @@
 #include "Ship.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "Util/StatisticExporter.h"
 
 DEFINE_LOG_CATEGORY(Collisions);
 
@@ -41,6 +42,7 @@ void ALevelGenerator::Tick(float DeltaTime)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("You got %d points!"), Points);
 		UE_LOG(LogTemp, Warning, TEXT("Your final Ratio of (Replans-Crashes)/Replans: %f"),((float)(NumReplans - NumCollisions)) / (float)NumReplans);
+		StatisticsExporter::Get().Log(); // 
 		UKismetSystemLibrary::QuitGame(GetWorld(), GetWorld()->GetFirstPlayerController(), EQuitPreference::Quit, true);
 	}
 
@@ -736,6 +738,7 @@ int ALevelGenerator::DepositResource(AShip* Ship)
 		Result += Count;
 		TotalWood += Count;
 		Points += Count * 1;
+		StatisticsExporter::Get().Wood += Count;
 	}
 	if (Ship->NumStone > 0)
 	{
@@ -744,6 +747,7 @@ int ALevelGenerator::DepositResource(AShip* Ship)
 		Result += Count;
 		TotalStone += Count;
 		Points += Count * 2;
+		StatisticsExporter::Get().Stone += Count;
 	}
 	if (Ship->NumGrain > 0)
 	{
@@ -752,6 +756,7 @@ int ALevelGenerator::DepositResource(AShip* Ship)
 		Result += Count;
 		TotalGrain += Count;
 		Points += Count * 3;
+		StatisticsExporter::Get().Grain += Count;
 	}
 	
 	return Result;

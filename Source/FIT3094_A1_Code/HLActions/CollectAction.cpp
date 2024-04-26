@@ -15,15 +15,15 @@ bool UCollectAction::SetupAction(AShip* Ship)
 
 	// find the most needed resource to build a university
 	ALevelGenerator* LG = Ship->LevelGenerator;
-	float ShipTypeWeight = 1.0f;
+	float ShipTypeWeight = 5.0f;
 	GRID_TYPE ShipType = Ship->GetResourceType();
 	TArray<GRID_TYPE> Types;
-	/*float WoodRequired = (LG->TotalWood + PlannedResourceAmount - 15.0f) / 15.0f - (ShipType == GRID_TYPE::Wood) * ShipTypeWeight;
+	float WoodRequired = (LG->TotalWood + PlannedResourceAmount - 15.0f) / 15.0f - (ShipType == GRID_TYPE::Wood) * ShipTypeWeight;
 	float StoneRequired = (LG->TotalStone + PlannedResourceAmount - 10.0f) / 10.0f - (ShipType == GRID_TYPE::Stone) * ShipTypeWeight;
-	float GrainRequired = (LG->TotalGrain + PlannedResourceAmount - 5.0f) / 5.0f - (ShipType == GRID_TYPE::Grain) * ShipTypeWeight;*/
-	float WoodRequired = (LG->TotalWood - 15.0f - (ShipType == GRID_TYPE::Wood) * ShipTypeWeight) / 15.0;
+	float GrainRequired = (LG->TotalGrain + PlannedResourceAmount - 5.0f) / 5.0f - (ShipType == GRID_TYPE::Grain) * ShipTypeWeight;
+	/*float WoodRequired = (LG->TotalWood - 15.0f - (ShipType == GRID_TYPE::Wood) * ShipTypeWeight) / 15.0;
 	float StoneRequired = (LG->TotalStone - 10.0f - (ShipType == GRID_TYPE::Stone) * ShipTypeWeight) / 10.0f;
-	float GrainRequired = (LG->TotalGrain - 5.0f - (ShipType == GRID_TYPE::Grain) * ShipTypeWeight) / 5.0f;
+	float GrainRequired = (LG->TotalGrain - 5.0f - (ShipType == GRID_TYPE::Grain) * ShipTypeWeight) / 5.0f;*/
 	float Min = FMath::Min(TArray{WoodRequired, StoneRequired, GrainRequired});
 	if (Min == WoodRequired) Types.Add(GRID_TYPE::Wood);
 	if (Min == StoneRequired) Types.Add(GRID_TYPE::Stone);

@@ -2,6 +2,7 @@
 
 #include "FIT3094_A1_Code/LevelGenerator.h"
 #include "FIT3094_A1_Code/Ship.h"
+#include "FIT3094_A1_Code/Util/StatisticExporter.h"
 
 bool UCustomAction::IsActionDone()
 {
@@ -27,6 +28,13 @@ bool UCustomAction::Execute(AShip* Ship, float DeltaTime)
 		UE_LOG(LogTemp, Warning, TEXT("Target %s is invalid!"), *Target->GetName());
 		return false;
 	}
+
+	FString Key = GetClass()->GetName();
+	if (!StatisticsExporter::Get().ExecuteTimes.Contains(Key))
+	{
+		StatisticsExporter::Get().ExecuteTimes.Add(Key, 0);
+	}
+	StatisticsExporter::Get().ExecuteTimes[Key] += DeltaTime;
 	
 	if (State == NotStarted) {
 		OnStart();
