@@ -116,3 +116,21 @@ float ABuilding::GetTimeRequired(BUILDING_TYPE Type)
 	return TimeRequired;
 }
 
+int ABuilding::GetPointsProvided(BUILDING_TYPE Type)
+{
+	int Points = 0;
+	switch(Type)
+	{
+	case(BUILDING_TYPE::Market):
+		Points = 50;
+		break;
+	case(BUILDING_TYPE::Theatre):
+		Points = 250;
+		break;
+	case(BUILDING_TYPE::University):
+		Points = 1000;
+		break;
+	}
+	return Points;
+}
+

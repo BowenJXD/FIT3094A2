@@ -51,8 +51,33 @@ bool UCollectAction::CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> Curren
 }
 
 void UCollectAction::ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorState)
-{
-	
+{	
+	AResource* Resource = Cast<AResource>(Target);
+	if (Resource->ResourceType == GRID_TYPE::Wood)
+	{
+		SuccessorState[AgentWood] ++;
+		if (Agent->AgentType == AShip::AGENT_TYPE::Woodcutter)
+		{
+			SuccessorState[AgentWood] ++;
+		}
+	}
+	else if (Resource->ResourceType == GRID_TYPE::Stone)
+	{
+		SuccessorState[AgentStone] ++;
+		if (Agent->AgentType == AShip::AGENT_TYPE::Stonemason)
+		{
+			SuccessorState[AgentStone] ++;
+		}
+	}
+	else if (Resource->ResourceType == GRID_TYPE::Grain)
+	{
+		SuccessorState[AgentGrain] ++;
+		if (Agent->AgentType == AShip::AGENT_TYPE::Farmer)
+		{
+			SuccessorState[AgentGrain] ++;
+		}
+	}
+
 }
 
 void UCollectAction::OnStart()

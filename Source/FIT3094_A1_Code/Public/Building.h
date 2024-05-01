@@ -48,4 +48,6 @@ public:
 
 	// ------------------ New Code ------------------
 	static float GetTimeRequired(BUILDING_TYPE Type);
+
+	static int GetPointsProvided(BUILDING_TYPE Type);
 };

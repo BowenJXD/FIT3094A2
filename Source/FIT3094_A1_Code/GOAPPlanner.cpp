@@ -47,12 +47,14 @@ bool GOAPPlanner::Plan(AShip* Ship, bool bForwardSearch)
 
 	while (Open.Num() > 0)
 	{
-		float SmallestF = Open[0]->RunningCost + NodeHeuristic(StartNode->State, Open[0]->State, GoalConditions);
+		//float SmallestF = Open[0]->RunningCost + NodeHeuristic(Start->State, Open[0]->State, GoalConditions);
+		float SmallestF = Open[0]->RunningCost + NodeHeuristic(GoalNode->State, Open[0]->State, GoalConditions);
 		int SmallestFIndex = 0;
 		
 		for(int i = 1; i < Open.Num(); i++)
 		{
-			int CurrentF = Open[i]->RunningCost + NodeHeuristic(StartNode->State, Open[i]->State, GoalConditions);
+			//int CurrentF = Open[i]->RunningCost + NodeHeuristic(StartNode->State, Open[i]->State, GoalConditions);
+			int CurrentF = Open[i]->RunningCost + NodeHeuristic(GoalNode->State, Open[i]->State, GoalConditions);
 			if(CurrentF < SmallestF)
 			{
 				SmallestF = CurrentF;
@@ -69,18 +71,21 @@ bool GOAPPlanner::Plan(AShip* Ship, bool bForwardSearch)
 			return false;
 		}
 
-		
-		if(IsGoal(StartNode->State, CurrentNode->State,GoalConditions))
+		// if(IsGoal(StartNode->State, CurrentNode->State,GoalConditions))
+		if(IsGoal(GoalNode->State, CurrentNode->State,GoalConditions))
 		{
 			
 			TArray<UHLAction*> ActionsToTake;
+			//Start from Goal, then Goal - 1, all the way to Start
+			//So ActionsToTake is Goal, Goal-1, etc.
 			while(CurrentNode->Parent)
 			{
 				ActionsToTake.Add(CurrentNode->Action);
 				CurrentNode = CurrentNode->Parent;
 			}
-			
-			for(int i = 0; i < ActionsToTake.Num(); i++)
+
+			// 
+			for(int i = ActionsToTake.Num() - 1; i >= 0; i--)
 			{
 				Ship->PlannedActions.Add(ActionsToTake[i]);
 			}
@@ -142,7 +147,7 @@ bool GOAPPlanner::IsGoal(TMap<STATE_KEY, int>& StartState, TMap<STATE_KEY, int>&
 		{
 			if(GoalCondition.Get<2>() == '>')
 			{
-				if(*CurrentState.Find(GoalCondition.Get<0>()) < *StartState.Find(GoalCondition.Get<0>()))
+				if(*CurrentState.Find(GoalCondition.Get<0>()) <= *StartState.Find(GoalCondition.Get<0>()))
 				{
 					return false;
 				}
@@ -228,6 +233,25 @@ int GOAPPlanner::NodeHeuristic(TMap<STATE_KEY, int>& StartState, TMap<STATE_KEY,
 TArray<GOAPNode*> GOAPPlanner::Expand(GOAPNode* Node, AShip* Ship)
 {
 	TArray<GOAPNode*> ConnectedNodes;
+
+	for(int i = 0; i < Ship->AvailableActions.Num(); i++)
+	{
+		UHLAction* NewAction = NewObject<UHLAction>(Ship, Ship->AvailableActions[i]);
+		if(NewAction->CheckPreconditions(Ship, Node->State))
+		{
+			if(!NewAction->SetupAction(Ship))
+			{
+				continue;
+			}
+			GOAPNode* NewNode = new GOAPNode();
+			NewNode->State = Node->State; // TODO: Check if this is correct
+			NewAction->ApplyEffects(Ship, NewNode->State);
+			NewNode->Action = NewAction;
+			NewNode->RunningCost = Node->RunningCost + NewAction->ActionCost;
+			NewNode->Parent = Node;
+			ConnectedNodes.Add(NewNode);
+		}
+	}
 	
 	return ConnectedNodes;
 }

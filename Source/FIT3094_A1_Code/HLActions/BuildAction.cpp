@@ -31,9 +31,9 @@ bool UBuildAction::CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> CurrentS
 	&& CurrentState[AgentWood] == 0
 	&& CurrentState[AgentStone] == 0
 	&& CurrentState[AgentGrain] == 0
-	&& CurrentState[TotalWood] > ABuilding::GetResourceCost(BuildingType)[0]
-	&& CurrentState[TotalStone] > ABuilding::GetResourceCost(BuildingType)[1]
-	&& CurrentState[TotalGrain] > ABuilding::GetResourceCost(BuildingType)[2];
+	&& CurrentState[TotalWood] >= ABuilding::GetResourceCost(BuildingType)[0]
+	&& CurrentState[TotalStone] >= ABuilding::GetResourceCost(BuildingType)[1]
+	&& CurrentState[TotalGrain] >= ABuilding::GetResourceCost(BuildingType)[2];
 	return Result;
 }
 
@@ -42,6 +42,9 @@ void UBuildAction::ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorStat
 	SuccessorState[TotalWood] -= ABuilding::GetResourceCost(BuildingType)[0];
 	SuccessorState[TotalStone] -= ABuilding::GetResourceCost(BuildingType)[1];
 	SuccessorState[TotalGrain] -= ABuilding::GetResourceCost(BuildingType)[2];
+	SuccessorState[NumBuildings]++;
+	SuccessorState[NumBuildingSlots]--;
+	SuccessorState[NumPoints] += ABuilding::GetPointsProvided(BuildingType);
 }
 
 void UBuildAction::OnStart()

@@ -27,9 +27,17 @@ bool UDepositAction::CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> Curren
 
 void UDepositAction::ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorState)
 {
-	SuccessorState.Add(AgentWood, 0);
-	SuccessorState.Add(AgentStone, 0);
-	SuccessorState.Add(AgentGrain, 0);
+	int Wood = SuccessorState[AgentWood];
+	int Stone = SuccessorState[AgentStone];
+	int Grain = SuccessorState[AgentGrain];
+	
+	SuccessorState[AgentWood] -= Wood;
+	SuccessorState[AgentStone] -= Stone;
+	SuccessorState[AgentGrain] -= Grain;
+
+	SuccessorState[TotalWood] += Wood;
+	SuccessorState[TotalStone] += Stone;
+	SuccessorState[TotalGrain] += Grain;
 }
 
 void UDepositAction::OnStart()

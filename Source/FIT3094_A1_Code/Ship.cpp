@@ -87,7 +87,7 @@ void AShip::OnIdleTick(float DeltaTime)
 		if(bUseGOAP)
 		{
 			//Change the bForwardSearch parameter in this function call to false if using backwards planning
-			if(GOAPPlanner::Plan(this, false))
+			if(GOAPPlanner::Plan(this, true))
 			{
 				UE_LOG(LogTemp, Warning, TEXT("%s has found a plan. Executing plan!"), *GetName());
 				ChangeState(State_Execute);
@@ -108,6 +108,9 @@ void AShip::OnIdleTick(float DeltaTime)
 			else
 			{
 				FailedPlanCooldown = 1;
+				bAtGoal = true;
+				bAtNextNode = true;
+				LevelGenerator->CheckForCollisions();
 				UE_LOG(LogTemp, Warning, TEXT("%s was unable to find a plan. Idling for %f seconds"), *GetName(), MaxIdleTime);
 			}
 		}
@@ -204,6 +207,10 @@ void AShip::OnMoveTick(float DeltaTime)
 		
 			SetActorLocation(CurrentPosition);
 			SetActorRotation(Direction.Rotation());
+		}
+		else
+		{
+			LevelGenerator->CheckForCollisions();
 		}
 		
 	}
@@ -409,6 +416,65 @@ TArray<TTuple<STATE_KEY, int, char>> AShip::PickGoal()
 {
 	TArray<TTuple<STATE_KEY, int, char>> GoalToPersue;
 
+	auto WorldState = GetWorldState();
+
+	/*if (WorldState[TotalWood] > 15 && WorldState[TotalStone] > 10 && WorldState[TotalGrain] > 5)
+	{
+		switch (AgentType)
+		{
+		case Builder:
+			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(NumBuildings, WorldState[NumBuildings], '>'));
+			break;
+		case Woodcutter:
+			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalWood, WorldState[TotalWood], '>'));
+			break;
+		case Stonemason:
+			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalStone, WorldState[TotalStone], '>'));
+			break;
+		case Farmer:
+			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalGrain, WorldState[TotalGrain], '>'));
+			break;
+		default:
+			break;
+		}
+	}
+	else
+	{
+		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalWood, 15, '>'));
+		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalStone, 10, '>'));
+		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalGrain, 5, '>'));
+	}*/
+
+	switch (AgentType)
+	{
+	case Builder:
+		if (WorldState[TotalWood] > 15 && WorldState[TotalStone] > 10 && WorldState[TotalGrain] > 5)
+		{
+			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(NumBuildings, WorldState[NumBuildings], '>'));
+			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(NumBuildingSlots, WorldState[NumBuildingSlots], '<'));
+			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(NumPoints, WorldState[NumPoints], '>'));
+			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalWood, WorldState[TotalWood], '<'));
+			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalStone, WorldState[TotalStone], '<'));
+			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalGrain, WorldState[TotalGrain], '<'));
+		}
+		else
+		{
+			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalWood, WorldState[TotalWood], '>'));
+		}
+		break;
+	case Woodcutter:
+		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalWood, WorldState[TotalWood], '>'));
+		break;
+	case Stonemason:
+		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalStone, WorldState[TotalStone], '>'));
+		break;
+	case Farmer:
+		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalGrain, WorldState[TotalGrain], '>'));
+		break;
+	default:
+		break;
+	}
+
 	return GoalToPersue;
 }
 
@@ -422,6 +488,10 @@ void AShip::OnPlanAborted(UHLAction* FailedAction)
 
 void AShip::AddActions()
 {
+	/*if (AgentType == Builder)
+	{
+		AvailableActions.Add(UBuildAction::StaticClass());
+	}*/
 	AvailableActions.Add(UBuildAction::StaticClass());
 	AvailableActions.Add(UCollectAction::StaticClass());
 	AvailableActions.Add(UDepositAction::StaticClass());
