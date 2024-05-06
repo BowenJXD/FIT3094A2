@@ -47,7 +47,7 @@ bool GOAPPlanner::Plan(AShip* Ship, bool bForwardSearch)
 
 	while (Open.Num() > 0)
 	{
-		//float SmallestF = Open[0]->RunningCost + NodeHeuristic(Start->State, Open[0]->State, GoalConditions);
+		//float SmallestF = Open[0]->RunningCost + NodeHeuristic(StartNode->State, Open[0]->State, GoalConditions);
 		float SmallestF = Open[0]->RunningCost + NodeHeuristic(GoalNode->State, Open[0]->State, GoalConditions);
 		int SmallestFIndex = 0;
 		
@@ -55,7 +55,8 @@ bool GOAPPlanner::Plan(AShip* Ship, bool bForwardSearch)
 		{
 			//int CurrentF = Open[i]->RunningCost + NodeHeuristic(StartNode->State, Open[i]->State, GoalConditions);
 			int CurrentF = Open[i]->RunningCost + NodeHeuristic(GoalNode->State, Open[i]->State, GoalConditions);
-			if(CurrentF < SmallestF)
+			//if(CurrentF < SmallestF)
+			if(CurrentF > SmallestF)
 			{
 				SmallestF = CurrentF;
 				SmallestFIndex = i;
@@ -71,7 +72,7 @@ bool GOAPPlanner::Plan(AShip* Ship, bool bForwardSearch)
 			return false;
 		}
 
-		// if(IsGoal(StartNode->State, CurrentNode->State,GoalConditions))
+		//if(IsGoal(StartNode->State, CurrentNode->State,GoalConditions))
 		if(IsGoal(GoalNode->State, CurrentNode->State,GoalConditions))
 		{
 			
@@ -84,7 +85,7 @@ bool GOAPPlanner::Plan(AShip* Ship, bool bForwardSearch)
 				CurrentNode = CurrentNode->Parent;
 			}
 
-			// 
+			// for (int i = 0; i < ActionsToTake.Num(); i++)
 			for(int i = ActionsToTake.Num() - 1; i >= 0; i--)
 			{
 				Ship->PlannedActions.Add(ActionsToTake[i]);
