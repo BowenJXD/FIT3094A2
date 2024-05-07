@@ -13,10 +13,15 @@ bool GOAPPlanner::Plan(AShip* Ship, bool bForwardSearch)
 	
 	GOAPNode* GoalNode = new GOAPNode();
 	TArray<TTuple<STATE_KEY, int, char>> GoalConditions = Ship->PickGoal();
-	TMap<STATE_KEY, int> GoalState;
+	
+	// TMap<STATE_KEY, int> GoalState;
+	TMap<STATE_KEY, int> GoalState = Ship->GetWorldState();
+	//
 	for(TTuple<STATE_KEY, int, char> Condition : GoalConditions)
 	{
-		GoalState.Add(Condition.Get<0>(), Condition.Get<1>());
+		//GoalState.Add(Condition.Get<0>(), Condition.Get<1>());
+		GoalState[Condition.Get<0>()] = Condition.Get<1>();
+		//
 	}
 	GoalNode->State = GoalState;
 	GoalNode->Action = nullptr;
@@ -47,16 +52,16 @@ bool GOAPPlanner::Plan(AShip* Ship, bool bForwardSearch)
 
 	while (Open.Num() > 0)
 	{
-		//float SmallestF = Open[0]->RunningCost + NodeHeuristic(StartNode->State, Open[0]->State, GoalConditions);
-		float SmallestF = Open[0]->RunningCost + NodeHeuristic(GoalNode->State, Open[0]->State, GoalConditions);
+		float SmallestF = Open[0]->RunningCost + NodeHeuristic(StartNode->State, Open[0]->State, GoalConditions);
+		//float SmallestF = Open[0]->RunningCost + NodeHeuristic(GoalNode->State, Open[0]->State, GoalConditions);
 		int SmallestFIndex = 0;
 		
 		for(int i = 1; i < Open.Num(); i++)
 		{
-			//int CurrentF = Open[i]->RunningCost + NodeHeuristic(StartNode->State, Open[i]->State, GoalConditions);
-			int CurrentF = Open[i]->RunningCost + NodeHeuristic(GoalNode->State, Open[i]->State, GoalConditions);
-			//if(CurrentF < SmallestF)
-			if(CurrentF > SmallestF)
+			int CurrentF = Open[i]->RunningCost + NodeHeuristic(StartNode->State, Open[i]->State, GoalConditions);
+			//int CurrentF = Open[i]->RunningCost + NodeHeuristic(GoalNode->State, Open[i]->State, GoalConditions);
+			if(CurrentF < SmallestF)
+			// if(CurrentF > SmallestF)
 			{
 				SmallestF = CurrentF;
 				SmallestFIndex = i;
@@ -72,8 +77,8 @@ bool GOAPPlanner::Plan(AShip* Ship, bool bForwardSearch)
 			return false;
 		}
 
-		//if(IsGoal(StartNode->State, CurrentNode->State,GoalConditions))
-		if(IsGoal(GoalNode->State, CurrentNode->State,GoalConditions))
+		if(IsGoal(StartNode->State, CurrentNode->State,GoalConditions))
+		//if(IsGoal(GoalNode->State, CurrentNode->State,GoalConditions))
 		{
 			
 			TArray<UHLAction*> ActionsToTake;
@@ -85,8 +90,8 @@ bool GOAPPlanner::Plan(AShip* Ship, bool bForwardSearch)
 				CurrentNode = CurrentNode->Parent;
 			}
 
-			// for (int i = 0; i < ActionsToTake.Num(); i++)
-			for(int i = ActionsToTake.Num() - 1; i >= 0; i--)
+			for (int i = 0; i < ActionsToTake.Num(); i++)
+			// for(int i = ActionsToTake.Num() - 1; i >= 0; i--)
 			{
 				Ship->PlannedActions.Add(ActionsToTake[i]);
 			}
@@ -148,6 +153,7 @@ bool GOAPPlanner::IsGoal(TMap<STATE_KEY, int>& StartState, TMap<STATE_KEY, int>&
 		{
 			if(GoalCondition.Get<2>() == '>')
 			{
+				//if(*CurrentState.Find(GoalCondition.Get<0>()) < *StartState.Find(GoalCondition.Get<0>()))
 				if(*CurrentState.Find(GoalCondition.Get<0>()) <= *StartState.Find(GoalCondition.Get<0>()))
 				{
 					return false;

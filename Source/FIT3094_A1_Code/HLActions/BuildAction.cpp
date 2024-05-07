@@ -27,24 +27,52 @@ bool UBuildAction::SetupAction(AShip* Ship)
 
 bool UBuildAction::CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> CurrentState)
 {
-	bool Result = Ship->AgentType == AShip::AGENT_TYPE::Builder
-	&& CurrentState[AgentWood] == 0
-	&& CurrentState[AgentStone] == 0
-	&& CurrentState[AgentGrain] == 0
-	&& CurrentState[TotalWood] >= ABuilding::GetResourceCost(BuildingType)[0]
-	&& CurrentState[TotalStone] >= ABuilding::GetResourceCost(BuildingType)[1]
-	&& CurrentState[TotalGrain] >= ABuilding::GetResourceCost(BuildingType)[2];
+	bool bForward = false;
+	bool Result = Ship->AgentType == AShip::AGENT_TYPE::Builder;
+
+	if (bForward)
+	{
+		Result &= CurrentState[AgentWood] == 0;
+		Result &= CurrentState[AgentStone] == 0;
+		Result &= CurrentState[AgentGrain] == 0;
+		Result &= CurrentState[TotalWood] >= ABuilding::GetResourceCost(BuildingType)[0];
+		Result &= CurrentState[TotalStone] >= ABuilding::GetResourceCost(BuildingType)[1];
+		Result &= CurrentState[TotalGrain] >= ABuilding::GetResourceCost(BuildingType)[2];
+	}
+	else
+	{
+		Result &= CurrentState[AgentWood] > 0;
+		Result &= CurrentState[AgentStone] > 0;
+		Result &= CurrentState[AgentGrain] > 0;
+		Result &= CurrentState[TotalWood] < ABuilding::GetResourceCost(BuildingType)[0];
+		Result &= CurrentState[TotalStone] < ABuilding::GetResourceCost(BuildingType)[1];
+		Result &= CurrentState[TotalGrain] < ABuilding::GetResourceCost(BuildingType)[2];
+	}
 	return Result;
 }
 
 void UBuildAction::ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorState)
 {
-	SuccessorState[TotalWood] -= ABuilding::GetResourceCost(BuildingType)[0];
-	SuccessorState[TotalStone] -= ABuilding::GetResourceCost(BuildingType)[1];
-	SuccessorState[TotalGrain] -= ABuilding::GetResourceCost(BuildingType)[2];
-	SuccessorState[NumBuildings]++;
-	SuccessorState[NumBuildingSlots]--;
-	SuccessorState[NumPoints] += ABuilding::GetPointsProvided(BuildingType);
+	bool bForward = false;
+
+	if (bForward)
+	{
+		SuccessorState[TotalWood] -= ABuilding::GetResourceCost(BuildingType)[0];
+		SuccessorState[TotalStone] -= ABuilding::GetResourceCost(BuildingType)[1];
+		SuccessorState[TotalGrain] -= ABuilding::GetResourceCost(BuildingType)[2];
+		SuccessorState[NumBuildings]++;
+		SuccessorState[NumBuildingSlots]--;
+		SuccessorState[NumPoints] += ABuilding::GetPointsProvided(BuildingType);
+	}
+	else
+	{
+		SuccessorState[TotalWood] += ABuilding::GetResourceCost(BuildingType)[0];
+		SuccessorState[TotalStone] += ABuilding::GetResourceCost(BuildingType)[1];
+		SuccessorState[TotalGrain] += ABuilding::GetResourceCost(BuildingType)[2];
+		SuccessorState[NumBuildings]--;
+		SuccessorState[NumBuildingSlots]++;
+		SuccessorState[NumPoints] -= ABuilding::GetPointsProvided(BuildingType);
+	}
 }
 
 void UBuildAction::OnStart()

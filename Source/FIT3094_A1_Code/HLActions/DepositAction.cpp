@@ -18,26 +18,50 @@ bool UDepositAction::SetupAction(AShip* Ship)
 
 bool UDepositAction::CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> CurrentState)
 {
-	bool Result = false;
-	Result |= CurrentState[AgentWood] > 0;
-	Result |= CurrentState[AgentStone] > 0;
-	Result |= CurrentState[AgentGrain] > 0;
+	bool bForward = false;
+	bool Result = !bForward;
+	if (bForward)
+	{
+		Result |= CurrentState[AgentWood] > 0;
+		Result |= CurrentState[AgentStone] > 0;
+		Result |= CurrentState[AgentGrain] > 0;
+	}
+	else
+	{
+		Result &= CurrentState[AgentWood] == 0;
+		Result &= CurrentState[AgentStone] == 0;
+		Result &= CurrentState[AgentGrain] == 0;
+	}
 	return Result;
 }
 
 void UDepositAction::ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorState)
 {
+	bool bForward = false;
+
 	int Wood = SuccessorState[AgentWood];
 	int Stone = SuccessorState[AgentStone];
 	int Grain = SuccessorState[AgentGrain];
-	
-	SuccessorState[AgentWood] -= Wood;
-	SuccessorState[AgentStone] -= Stone;
-	SuccessorState[AgentGrain] -= Grain;
+	if (bForward)
+	{
+		SuccessorState[AgentWood] -= Wood;
+		SuccessorState[AgentStone] -= Stone;
+		SuccessorState[AgentGrain] -= Grain;
 
-	SuccessorState[TotalWood] += Wood;
-	SuccessorState[TotalStone] += Stone;
-	SuccessorState[TotalGrain] += Grain;
+		SuccessorState[TotalWood] += Wood;
+		SuccessorState[TotalStone] += Stone;
+		SuccessorState[TotalGrain] += Grain;
+	}
+	else
+	{
+		SuccessorState[AgentWood] += Wood;
+		SuccessorState[AgentStone] += Stone;
+		SuccessorState[AgentGrain] += Grain;
+
+		SuccessorState[TotalWood] -= Wood;
+		SuccessorState[TotalStone] -= Stone;
+		SuccessorState[TotalGrain] -= Grain;
+	}
 }
 
 void UDepositAction::OnStart()

@@ -87,7 +87,8 @@ void AShip::OnIdleTick(float DeltaTime)
 		if(bUseGOAP)
 		{
 			//Change the bForwardSearch parameter in this function call to false if using backwards planning
-			if(GOAPPlanner::Plan(this, true))
+			if(GOAPPlanner::Plan(this, false))
+			// if(GOAPPlanner::Plan(this, true))
 			{
 				UE_LOG(LogTemp, Warning, TEXT("%s has found a plan. Executing plan!"), *GetName());
 				ChangeState(State_Execute);

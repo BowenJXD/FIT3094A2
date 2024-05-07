@@ -43,38 +43,81 @@ bool UCollectAction::SetupAction(AShip* Ship)
 
 bool UCollectAction::CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> CurrentState)
 {
-	bool Result = true;
-	Result &= CurrentState[AgentWood] == 0;
-	Result &= CurrentState[AgentStone] == 0;
-	Result &= CurrentState[AgentGrain] == 0;
+	bool bForward = false;
+	bool Result = bForward;
+	if (bForward)
+	{
+		Result &= CurrentState[AgentWood] == 0;
+		Result &= CurrentState[AgentStone] == 0;
+		Result &= CurrentState[AgentGrain] == 0;
+	}
+	else
+	{
+		Result |= CurrentState[AgentWood] > 0;
+		Result |= CurrentState[AgentStone] > 0;
+		Result |= CurrentState[AgentGrain] > 0;
+	}
 	return Result;
 }
 
 void UCollectAction::ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorState)
 {	
 	AResource* Resource = Cast<AResource>(Target);
-	if (Resource->ResourceType == GRID_TYPE::Wood)
+
+	bool bForward = false;
+
+	if (bForward)
 	{
-		SuccessorState[AgentWood] ++;
-		if (Agent->AgentType == AShip::AGENT_TYPE::Woodcutter)
+		if (Resource->ResourceType == GRID_TYPE::Wood)
 		{
 			SuccessorState[AgentWood] ++;
+			if (Agent->AgentType == AShip::AGENT_TYPE::Woodcutter && Resource->ResourceCount > 0)
+			{
+				SuccessorState[AgentWood] ++;
+			}
 		}
-	}
-	else if (Resource->ResourceType == GRID_TYPE::Stone)
-	{
-		SuccessorState[AgentStone] ++;
-		if (Agent->AgentType == AShip::AGENT_TYPE::Stonemason)
+		else if (Resource->ResourceType == GRID_TYPE::Stone)
 		{
 			SuccessorState[AgentStone] ++;
+			if (Agent->AgentType == AShip::AGENT_TYPE::Stonemason && Resource->ResourceCount > 0)
+			{
+				SuccessorState[AgentStone] ++;
+			}
 		}
-	}
-	else if (Resource->ResourceType == GRID_TYPE::Grain)
-	{
-		SuccessorState[AgentGrain] ++;
-		if (Agent->AgentType == AShip::AGENT_TYPE::Farmer)
+		else if (Resource->ResourceType == GRID_TYPE::Grain)
 		{
 			SuccessorState[AgentGrain] ++;
+			if (Agent->AgentType == AShip::AGENT_TYPE::Farmer && Resource->ResourceCount > 0)
+			{
+				SuccessorState[AgentGrain] ++;
+			}
+		}
+	}
+	else
+	{
+		if (Resource->ResourceType == GRID_TYPE::Wood)
+		{
+			SuccessorState[AgentWood] --;
+			if (Agent->AgentType == AShip::AGENT_TYPE::Woodcutter && Resource->ResourceCount > 0)
+			{
+				SuccessorState[AgentWood] --;
+			}
+		}
+		else if (Resource->ResourceType == GRID_TYPE::Stone)
+		{
+			SuccessorState[AgentStone] --;
+			if (Agent->AgentType == AShip::AGENT_TYPE::Stonemason && Resource->ResourceCount > 0)
+			{
+				SuccessorState[AgentStone] --;
+			}
+		}
+		else if (Resource->ResourceType == GRID_TYPE::Grain)
+		{
+			SuccessorState[AgentGrain] --;
+			if (Agent->AgentType == AShip::AGENT_TYPE::Farmer && Resource->ResourceCount > 0)
+			{
+				SuccessorState[AgentGrain] --;
+			}
 		}
 	}
 
