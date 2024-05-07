@@ -23,4 +23,6 @@ public:
 	virtual void OnStart() override;
 	
 	virtual bool OnTick(float DeltaTime) override;
+
+	virtual GRID_TYPE GetResourceType();
 };

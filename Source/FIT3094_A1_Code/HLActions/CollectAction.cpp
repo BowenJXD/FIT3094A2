@@ -33,11 +33,8 @@ bool UCollectAction::SetupAction(AShip* Ship)
 	if (!Types.Contains(ShipType)) ResultTypes = Types; 
 	
 	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, ResultTypes);
+	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, GetResourceType());
 	if (!Target) return false;
-	PlannedResourceAmount = Cast<AResource>(Target)->ResourceCount;
-	LG->AlterPlannedResources(ShipType, PlannedResourceAmount);
-
-	if (Target) Agent->LevelGenerator->ResourceOccupancy.Add(Cast<AResource>(Target), Agent);
 	return Target != nullptr;
 }
 
@@ -78,6 +75,12 @@ void UCollectAction::ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorSt
 		}
 	}
 
+
+	PlannedResourceAmount = Cast<AResource>(Target)->ResourceCount;
+	Ship->LevelGenerator->AlterPlannedResources(Ship->GetResourceType(), PlannedResourceAmount);
+
+	/*if (Target) Agent->LevelGenerator->ResourceOccupancy.Add(Cast<AResource>(Target), Agent);*/
+	
 }
 
 void UCollectAction::OnStart()
@@ -126,4 +129,9 @@ bool UCollectAction::OnTick(float DeltaTime)
 	}
 	
 	return true;
+}
+
+GRID_TYPE UCollectAction::GetResourceType()
+{
+	return Cast<AResource>(Target)->ResourceType;
 }

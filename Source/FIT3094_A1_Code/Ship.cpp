@@ -5,6 +5,9 @@
 #include "LevelGenerator.h"
 #include "HLActions/BuildAction.h"
 #include "HLActions/CollectAction.h"
+#include "HLActions/CollectGrainAction.h"
+#include "HLActions/CollectStoneAction.h"
+#include "HLActions/CollectWoodAction.h"
 #include "HLActions/DepositAction.h"
 #include "Kismet/GameplayStatics.h"
 #include "Util/StatisticExporter.h"
@@ -418,63 +421,54 @@ TArray<TTuple<STATE_KEY, int, char>> AShip::PickGoal()
 
 	auto WorldState = GetWorldState();
 
-	/*if (WorldState[TotalWood] > 15 && WorldState[TotalStone] > 10 && WorldState[TotalGrain] > 5)
+	if (AgentType == Builder && WorldState[TotalWood] > 15 && WorldState[TotalStone] > 10 && WorldState[TotalGrain] > 5)
 	{
-		switch (AgentType)
-		{
-		case Builder:
-			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(NumBuildings, WorldState[NumBuildings], '>'));
-			break;
-		case Woodcutter:
-			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalWood, WorldState[TotalWood], '>'));
-			break;
-		case Stonemason:
-			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalStone, WorldState[TotalStone], '>'));
-			break;
-		case Farmer:
-			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalGrain, WorldState[TotalGrain], '>'));
-			break;
-		default:
-			break;
-		}
+		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(NumBuildings, WorldState[NumBuildings], '>'));
+		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(NumBuildingSlots, WorldState[NumBuildingSlots], '<'));
+		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(NumPoints, WorldState[NumPoints], '>'));
+		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalWood, WorldState[TotalWood], '<'));
+		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalStone, WorldState[TotalStone], '<'));
+		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalGrain, WorldState[TotalGrain], '<'));
 	}
 	else
 	{
-		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalWood, 15, '>'));
-		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalStone, 10, '>'));
-		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalGrain, 5, '>'));
-	}*/
+		ALevelGenerator* LG = LevelGenerator;
+		float ShipTypeWeight = 5.0f;
+		GRID_TYPE ShipType = GetResourceType();
+		TArray<GRID_TYPE> Types;
+		float WoodRequired = (LG->TotalWood /*+ LG->PlannedWood*/ - 15.0f) / 15.0f - (ShipType == GRID_TYPE::Wood) * ShipTypeWeight;
+		float StoneRequired = (LG->TotalStone /*+ LG->PlannedStone*/ - 10.0f) / 10.0f - (ShipType == GRID_TYPE::Stone) * ShipTypeWeight;
+		float GrainRequired = (LG->TotalGrain /*+ LG->PlannedGrain*/ - 5.0f) / 5.0f - (ShipType == GRID_TYPE::Grain) * ShipTypeWeight;
+		/*float WoodRequired = (LG->TotalWood - 15.0f - (ShipType == GRID_TYPE::Wood) * ShipTypeWeight) / 15.0;
+		float StoneRequired = (LG->TotalStone - 10.0f - (ShipType == GRID_TYPE::Stone) * ShipTypeWeight) / 10.0f;
+		float GrainRequired = (LG->TotalGrain - 5.0f - (ShipType == GRID_TYPE::Grain) * ShipTypeWeight) / 5.0f;*/
+		float Min = FMath::Min(TArray{WoodRequired, StoneRequired, GrainRequired});
+		if (Min == WoodRequired) Types.Add(GRID_TYPE::Wood);
+		if (Min == StoneRequired) Types.Add(GRID_TYPE::Stone);
+		if (Min == GrainRequired) Types.Add(GRID_TYPE::Grain);
 
-	switch (AgentType)
-	{
-	case Builder:
-		if (WorldState[TotalWood] > 15 && WorldState[TotalStone] > 10 && WorldState[TotalGrain] > 5)
+		TArray<GRID_TYPE> ResultTypes = TArray{ShipType};
+		if (!Types.Contains(ShipType)) ResultTypes = Types; 
+	
+		auto Target = LevelGenerator->CalculateNearestGoal(this, ResultTypes);
+
+		AResource* Resource = Cast<AResource>(Target);
+		switch (Resource->ResourceType)
 		{
-			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(NumBuildings, WorldState[NumBuildings], '>'));
-			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(NumBuildingSlots, WorldState[NumBuildingSlots], '<'));
-			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(NumPoints, WorldState[NumPoints], '>'));
-			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalWood, WorldState[TotalWood], '<'));
-			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalStone, WorldState[TotalStone], '<'));
-			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalGrain, WorldState[TotalGrain], '<'));
+			case GRID_TYPE::Wood:
+				GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalWood, WorldState[TotalWood], '>'));
+				break;
+			case GRID_TYPE::Stone:
+				GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalStone, WorldState[TotalStone], '>'));
+				break;
+			case GRID_TYPE::Grain:
+				GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalGrain, WorldState[TotalGrain], '>'));
+				break;
+			default:
+				break;
 		}
-		else
-		{
-			GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalWood, WorldState[TotalWood], '>'));
-		}
-		break;
-	case Woodcutter:
-		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalWood, WorldState[TotalWood], '>'));
-		break;
-	case Stonemason:
-		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalStone, WorldState[TotalStone], '>'));
-		break;
-	case Farmer:
-		GoalToPersue.Add(TTuple<STATE_KEY, int, char>(TotalGrain, WorldState[TotalGrain], '>'));
-		break;
-	default:
-		break;
 	}
-
+	
 	return GoalToPersue;
 }
 
@@ -493,7 +487,9 @@ void AShip::AddActions()
 		AvailableActions.Add(UBuildAction::StaticClass());
 	}*/
 	AvailableActions.Add(UBuildAction::StaticClass());
-	AvailableActions.Add(UCollectAction::StaticClass());
+	AvailableActions.Add(UCollectWoodAction::StaticClass());
+	AvailableActions.Add(UCollectStoneAction::StaticClass());
+	AvailableActions.Add(UCollectGrainAction::StaticClass());	
 	AvailableActions.Add(UDepositAction::StaticClass());
 }
 

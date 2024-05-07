@@ -774,7 +774,7 @@ AActor* ALevelGenerator::CalculateNearestGoal(AActor* Ship, TArray<GRID_TYPE> Re
 	{
 		if(!IsValid(Resource)
 			|| Resource->GetName().Contains("Path")
-			|| ResourceOccupancy.Contains(Cast<AResource>(Resource)))
+			/*|| ResourceOccupancy.Contains(Cast<AResource>(Resource))*/)
 		{
 			continue;
 		}
