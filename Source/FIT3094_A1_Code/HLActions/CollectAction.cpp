@@ -33,13 +33,15 @@ bool UCollectAction::SetupAction(AShip* Ship)
 	if (!Types.Contains(ShipType)) ResultTypes = Types; 
 	
 	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, ResultTypes);*/
-	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, TArray{GetResourceType()}, 5);
+	Target = Ship->LevelGenerator->CalculateNearestGoal(PlannedLocation, TArray{GetResourceType()}, 5);
 	if (!Target) return false;
 	return Target != nullptr;
 }
 
 bool UCollectAction::CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> CurrentState)
 {
+ 	Super::CheckPreconditions(Ship, CurrentState);
+	
 	bool Result = true;
 	Result &= CurrentState[AgentWood] == 0;
 	Result &= CurrentState[AgentStone] == 0;
@@ -48,7 +50,9 @@ bool UCollectAction::CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> Curren
 }
 
 void UCollectAction::ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorState)
-{	
+{
+	Super::ApplyEffects(Ship, SuccessorState);
+	
 	AResource* Resource = Cast<AResource>(Target);
 	if (Resource->ResourceType == GRID_TYPE::Wood)
 	{

@@ -176,7 +176,7 @@ public:
 	
 	AActor* CalculateNearestGoal(AActor* Ship, GRID_TYPE ResourceType);
 	GridNode* FindGridNode(AActor* ActorResource);
-	void Replan(AShip* Ship, TArray<GridNode*> CurrentNodes, TArray<GridNode*> NextNodes);
+	void Replan(AShip* Ship, TArray<GridNode*> RestrictedNodes = {});
 
 	//CHANGE THIS TO TRUE TO ENABLE REPLANNING
 	bool CollisionAndReplanning = true;
@@ -189,7 +189,7 @@ public:
 
 	int DepositResource(AShip* Ship);
 
-	AActor* CalculateNearestGoal(AActor* Ship, TArray<GRID_TYPE> ResourceType, float ExpDuration);
+	AActor* CalculateNearestGoal(GridNode* Node, TArray<GRID_TYPE> ResourceType, float ExpDuration);
 
 	int PlannedWood = 0;
 	int PlannedStone = 0;
@@ -202,4 +202,7 @@ public:
 	void AlterPlannedResources(GRID_TYPE ResourceType, int Amount);
 
 	double TimePassed;
+
+	GridNode* GetNode(AActor* Actor);
+	FVector GetNodeLocation(GridNode* Node);
 };

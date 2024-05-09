@@ -11,12 +11,14 @@ bool UDepositAction::RequiresInRange()
 bool UDepositAction::SetupAction(AShip* Ship)
 {
 	Super::SetupAction(Ship);
-	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, TArray{GRID_TYPE::Home}, 1);
+	Target = Ship->LevelGenerator->CalculateNearestGoal(PlannedLocation, TArray{GRID_TYPE::Home}, 1);
 	return Target != nullptr;
 }
 
 bool UDepositAction::CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> CurrentState)
 {
+	Super::CheckPreconditions(Ship, CurrentState);
+	
 	bool Result = false;
 	Result |= CurrentState[AgentWood] > 0;
 	Result |= CurrentState[AgentStone] > 0;
@@ -26,6 +28,8 @@ bool UDepositAction::CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> Curren
 
 void UDepositAction::ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorState)
 {
+	Super::ApplyEffects(Ship, SuccessorState);
+	
 	int Wood = SuccessorState[AgentWood];
 	int Stone = SuccessorState[AgentStone];
 	int Grain = SuccessorState[AgentGrain];

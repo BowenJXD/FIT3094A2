@@ -15,12 +15,14 @@ bool UBuildAction::RequiresInRange()
 bool UBuildAction::SetupAction(AShip* Ship)
 {
 	Super::SetupAction(Ship);
-	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, TArray{GRID_TYPE::BuildingSlot}, ABuilding::GetTimeRequired(BuildingType));
+	Target = Ship->LevelGenerator->CalculateNearestGoal(PlannedLocation, TArray{GRID_TYPE::BuildingSlot}, ABuilding::GetTimeRequired(BuildingType));
 	return Target != nullptr;
 }
 
 bool UBuildAction::CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> CurrentState)
 {
+	Super::CheckPreconditions(Ship, CurrentState);
+	
 	bool Result = Ship->AgentType == AShip::AGENT_TYPE::Builder
 	&& CurrentState[AgentWood] == 0
 	&& CurrentState[AgentStone] == 0
@@ -33,6 +35,8 @@ bool UBuildAction::CheckPreconditions(AShip* Ship, TMap<STATE_KEY, int> CurrentS
 
 void UBuildAction::ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorState)
 {
+	Super::ApplyEffects(Ship, SuccessorState);
+	
 	SuccessorState[TotalWood] -= ABuilding::GetResourceCost(BuildingType)[0];
 	SuccessorState[TotalStone] -= ABuilding::GetResourceCost(BuildingType)[1];
 	SuccessorState[TotalGrain] -= ABuilding::GetResourceCost(BuildingType)[2];

@@ -152,6 +152,7 @@ void AShip::OnMoveEnter()
 		{
 			GoalNode = GoalLocation;
 			LevelGenerator->CalculatePath(this, GoalLocation);
+			LevelGenerator->CheckForCollisions(); //
 			StatisticsExporter::Get().PathLength += Path.Num(); //
 			StatisticsExporter::Get().PathCount++; //
 		}
@@ -170,10 +171,8 @@ void AShip::OnMoveEnter()
 
 void AShip::OnMoveTick(float DeltaTime)
 {
-	StatisticsExporter::Get().MoveTime += DeltaTime;
-	
 	UHLAction* CurrentAction = PlannedActions[0];
-	
+   
 	if(Path.Num() > 0)
 	{
 		bAtGoal = false;
@@ -195,7 +194,7 @@ void AShip::OnMoveTick(float DeltaTime)
 			if(FVector::Dist(CurrentPosition, TargetPosition) <= Tolerance)
 			{
 				CurrentPosition = TargetPosition;
-			
+         
 				if(Path[0] == GoalNode)
 				{
 					bAtGoal = true;
@@ -207,22 +206,17 @@ void AShip::OnMoveTick(float DeltaTime)
 				bAtNextNode = true;
 				LevelGenerator->CheckForCollisions();
 			}
-		
+      
 			SetActorLocation(CurrentPosition);
 			SetActorRotation(Direction.Rotation());
 		}
-		else
-		{
-			LevelGenerator->CheckForCollisions();
-		}
-		
+      
 	}
 	else
 	{
-		LevelGenerator->CheckForCollisions();
 		bAtNextNode = true;
 		bAtGoal = true;
-		bRecentlyCrashed = true;
+		LevelGenerator->CheckForCollisions();
 		for(int i = 0; i < PathDisplayActors.Num(); i++)
 		{
 			if(PathDisplayActors[i])
@@ -234,7 +228,7 @@ void AShip::OnMoveTick(float DeltaTime)
 		ChangeState(State_Execute);
 	}
 
-	
+   
 }
 
 void AShip::OnMoveExit()
@@ -409,6 +403,12 @@ TMap<STATE_KEY, int> AShip::GetWorldState()
 	WorldState.Add(TotalStone, LevelGenerator->TotalStone);
 	WorldState.Add(TotalGrain, LevelGenerator->TotalGrain);
 	WorldState.Add(TimeLeft, LevelGenerator->TimeLimit);
+
+	//
+	GridNode* Current = LevelGenerator->GetNode(this);
+	WorldState.Add(AgentLocationX, Current->X);
+	WorldState.Add(AgentLocationY, Current->Y);
+	//
 	
 	return WorldState;
 
@@ -450,7 +450,7 @@ TArray<TTuple<STATE_KEY, int, char>> AShip::PickGoal()
 		TArray<GRID_TYPE> ResultTypes = TArray{ShipType};
 		if (!Types.Contains(ShipType)) ResultTypes = Types; 
 	
-		auto Target = LevelGenerator->CalculateNearestGoal(this, ResultTypes, 0);
+		auto Target = LevelGenerator->CalculateNearestGoal(LevelGenerator->GetNode(this), ResultTypes, 0);
 
 		AResource* Resource = Cast<AResource>(Target);
 		switch (Resource->ResourceType)

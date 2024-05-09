@@ -43,7 +43,9 @@ enum STATE_KEY
 	NumMines,
 	NumFarms,
 	NumPoints,
-	TimeLeft
+	TimeLeft,
+	AgentLocationX,
+	AgentLocationY,
 };
 
 //This is a search node in the entire state space
