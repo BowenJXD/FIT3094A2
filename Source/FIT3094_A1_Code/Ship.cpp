@@ -450,7 +450,7 @@ TArray<TTuple<STATE_KEY, int, char>> AShip::PickGoal()
 		TArray<GRID_TYPE> ResultTypes = TArray{ShipType};
 		if (!Types.Contains(ShipType)) ResultTypes = Types; 
 	
-		auto Target = LevelGenerator->CalculateNearestGoal(this, ResultTypes);
+		auto Target = LevelGenerator->CalculateNearestGoal(this, ResultTypes, 0);
 
 		AResource* Resource = Cast<AResource>(Target);
 		switch (Resource->ResourceType)
@@ -536,4 +536,9 @@ GRID_TYPE AShip::GetResourceType()
 	}
 
 	return Result;
+}
+
+float AShip::GetTravelTime(int PathCount)
+{
+	return PathCount / MoveSpeed * 100;
 }

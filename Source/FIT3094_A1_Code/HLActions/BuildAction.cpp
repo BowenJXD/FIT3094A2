@@ -15,7 +15,7 @@ bool UBuildAction::RequiresInRange()
 bool UBuildAction::SetupAction(AShip* Ship)
 {
 	Super::SetupAction(Ship);
-	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, TArray{GRID_TYPE::BuildingSlot});
+	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, TArray{GRID_TYPE::BuildingSlot}, ABuilding::GetTimeRequired(BuildingType));
 	return Target != nullptr;
 }
 
@@ -39,12 +39,6 @@ void UBuildAction::ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorStat
 	SuccessorState[NumBuildings]++;
 	SuccessorState[NumBuildingSlots]--;
 	SuccessorState[NumPoints] += ABuilding::GetPointsProvided(BuildingType);
-	
-	Agent->LevelGenerator->TotalWood -= ABuilding::GetResourceCost(BuildingType)[0];
-	Agent->LevelGenerator->TotalStone -= ABuilding::GetResourceCost(BuildingType)[1];
-	Agent->LevelGenerator->TotalGrain -= ABuilding::GetResourceCost(BuildingType)[2];
-
-	/*if (Target) Agent->LevelGenerator->ResourceOccupancy.Add(Cast<AResource>(Target), Agent);*/
 }
 
 void UBuildAction::OnStart()
@@ -77,4 +71,13 @@ bool UBuildAction::OnTick(float DeltaTime)
 void UBuildAction::OnComplete()
 {
 	
+}
+
+void UBuildAction::OnActionConfirmed(AShip* Ship)
+{
+	Agent->LevelGenerator->TotalWood -= ABuilding::GetResourceCost(BuildingType)[0];
+	Agent->LevelGenerator->TotalStone -= ABuilding::GetResourceCost(BuildingType)[1];
+	Agent->LevelGenerator->TotalGrain -= ABuilding::GetResourceCost(BuildingType)[2];
+
+	if (Target) Agent->LevelGenerator->AddOccupancy(Cast<AResource>(Target), Agent, Agent->Path.Num(), ABuilding::GetTimeRequired(BuildingType));
 }

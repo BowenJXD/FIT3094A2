@@ -48,6 +48,8 @@ public:
 	//Some Actions can only be executing when within Range of a location in the world (GOAPAction::Target)
 	//Returns true if ship is at the GOAPAction::Target, false otherwise
 	virtual bool RequiresInRange() PURE_VIRTUAL(UGOAPAction::RequiresInRange, return false;);
-	
+
+	// ---------------- New Code ----------------
+	virtual void OnActionConfirmed(AShip* Ship) PURE_VIRTUAL(UGOAPAction::OnActionConfirmed, return;);
 };
 

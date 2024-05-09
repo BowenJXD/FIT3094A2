@@ -89,6 +89,7 @@ bool GOAPPlanner::Plan(AShip* Ship, bool bForwardSearch)
 			for(int i = ActionsToTake.Num() - 1; i >= 0; i--)
 			{
 				Ship->PlannedActions.Add(ActionsToTake[i]);
+				ActionsToTake[i]->OnActionConfirmed(Ship); // New Code
 			}
 			return true;
 		}
@@ -206,7 +207,7 @@ int GOAPPlanner::NodeHeuristic(TMap<STATE_KEY, int>& StartState, TMap<STATE_KEY,
 		{
 			if(GoalCondition.Get<2>() == '<')
 			{
-				if(*State.Find(GoalCondition.Get<0>()) < *StartState.Find(GoalCondition.Get<0>()))
+				if(*State.Find(GoalCondition.Get<0>()) <= *StartState.Find(GoalCondition.Get<0>()))
 				{
 					Heuristic++;
 				}

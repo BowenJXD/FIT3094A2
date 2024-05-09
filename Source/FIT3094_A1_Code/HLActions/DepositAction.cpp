@@ -11,8 +11,7 @@ bool UDepositAction::RequiresInRange()
 bool UDepositAction::SetupAction(AShip* Ship)
 {
 	Super::SetupAction(Ship);
-	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, TArray{GRID_TYPE::Home});
-	/*if (Target) Agent->LevelGenerator->ResourceOccupancy.Add(Cast<AResource>(Target), Agent);*/
+	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, TArray{GRID_TYPE::Home}, 1);
 	return Target != nullptr;
 }
 
@@ -58,5 +57,10 @@ bool UDepositAction::OnTick(float DeltaTime)
 	}
 	
 	return true;
+}
+
+void UDepositAction::OnActionConfirmed(AShip* Ship)
+{
+	if (Target) Agent->LevelGenerator->AddOccupancy(Cast<AResource>(Target), Agent, Agent->Path.Num(), 1);
 }
 

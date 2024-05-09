@@ -15,6 +15,58 @@ using namespace std;
 
 DECLARE_LOG_CATEGORY_EXTERN(Collisions, Warning, All);
 
+struct Occupancy
+{
+	AShip* Ship;
+	float StartTime;
+	float EndTime;
+
+	/**
+	 * @brief in percentage
+	 */
+	inline static const float TOLERANCE = 0.2f;
+
+	bool CheckOverlap(float Time)
+	{
+		float Duration = EndTime - StartTime;
+		float Tolerance = Duration * TOLERANCE;
+		if(Time >= StartTime - Tolerance && Time <= EndTime + Tolerance)
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	bool CheckOverlaps(float Start, float End)
+	{
+		float Duration = EndTime - StartTime;
+		float OtherDuration = End - Start;
+		float Tolerance = Duration * TOLERANCE;
+		float OtherTolerance = OtherDuration * TOLERANCE;
+		// if other.start time is within the range of this start time and end time
+		if(Start >= StartTime - Tolerance && Start <= EndTime + Tolerance)
+		{
+			return true;
+		}
+		// if other.end time is within the range of this start time and end time
+		if(End >= StartTime - Tolerance && End <= EndTime + Tolerance)
+		{
+			return true;
+		}
+		// if this.start time is within the range of other start time and end time
+		if(StartTime >= Start - OtherTolerance && StartTime <= End + OtherTolerance)
+		{
+			return true;
+		}
+		// if this.end time is within the range of other start time and end time
+		if(EndTime >= Start - OtherTolerance && EndTime <= End + OtherTolerance)
+		{
+			return true;
+		}
+		return false;
+	}
+};
+
 UCLASS()
 class FIT3094_A1_CODE_API ALevelGenerator : public AActor
 {
@@ -118,16 +170,16 @@ public:
 	void ResetPath();
 	void InitialiseLevel();
 	void DestroyAllActors();
-	void CalculatePath(AShip* Ship, GridNode* Resource);
+	void CalculatePath(AShip* Ship, GridNode* Resource, TArray<GridNode*> RestrictedNodes = {});
 	TArray<GridNode*> GetNeighbours(GridNode* NodeToCheck);
 	void CheckForCollisions();
 	
 	AActor* CalculateNearestGoal(AActor* Ship, GRID_TYPE ResourceType);
 	GridNode* FindGridNode(AActor* ActorResource);
-	void Replan(AShip* Ship);
+	void Replan(AShip* Ship, TArray<GridNode*> CurrentNodes, TArray<GridNode*> NextNodes);
 
 	//CHANGE THIS TO TRUE TO ENABLE REPLANNING
-	bool CollisionAndReplanning = false;
+	bool CollisionAndReplanning = true;
 	
 	int NumReplans = 0;
 	int NumCollisions = 0;
@@ -137,13 +189,17 @@ public:
 
 	int DepositResource(AShip* Ship);
 
-	AActor* CalculateNearestGoal(AActor* Ship, TArray<GRID_TYPE> ResourceType);
+	AActor* CalculateNearestGoal(AActor* Ship, TArray<GRID_TYPE> ResourceType, float ExpDuration);
 
 	int PlannedWood = 0;
 	int PlannedStone = 0;
 	int PlannedGrain = 0;
 
-	TMap<AResource*, AShip*> ResourceOccupancy = TMap<AResource*, AShip*>();
+	TMap<AResource*, Occupancy> ResourceOccupancy = TMap<AResource*, Occupancy>();
+
+	void AddOccupancy(AResource* Resource, AShip* Ship, int PathCount, float TimeRequired);
 
 	void AlterPlannedResources(GRID_TYPE ResourceType, int Amount);
+
+	double TimePassed;
 };

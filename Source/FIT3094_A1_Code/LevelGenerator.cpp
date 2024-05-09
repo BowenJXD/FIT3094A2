@@ -29,19 +29,19 @@ void ALevelGenerator::BeginPlay()
 	InitialiseLevel();
 	StartTime = FPlatformTime::Seconds();
 }
-
 // Called every frame
 void ALevelGenerator::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	int TimePassed = FPlatformTime::Seconds() - StartTime;
+	TimePassed = FPlatformTime::Seconds() - StartTime;
 	int TimeLeft = TimeLimit - TimePassed;
 
 	if(TimeLeft <= 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("You got %d points!"), Points);
 		UE_LOG(LogTemp, Warning, TEXT("Your final Ratio of (Replans-Crashes)/Replans: %f"),((float)(NumReplans - NumCollisions)) / (float)NumReplans);
+		StatisticsExporter::Get().Ratio = ((float)(NumReplans - NumCollisions)) / (float)NumReplans;
 		StatisticsExporter::Get().Log(); // 
 		UKismetSystemLibrary::QuitGame(GetWorld(), GetWorld()->GetFirstPlayerController(), EQuitPreference::Quit, true);
 	}
@@ -463,12 +463,14 @@ void ALevelGenerator::CheckForCollisions()
 	{
 		Ships[i]->bAtNextNode = Ships[i]->Path.Num() == 0;
 		LastNodes.Add(Ships[i]->LastNode);
-		CurrentNodes.Add(Ships[i]->CurrentNode);
+		//CurrentNodes.Add(Ships[i]->CurrentNode);
+		CurrentNodes.Add(WorldArray[(int)Ships[i]->GetActorLocation().Y / GRID_SIZE_WORLD][(int)Ships[i]->GetActorLocation().X / GRID_SIZE_WORLD]);
 		if(Ships[i]->bAtGoal == true)
 		{
-			NextNodes.Add(Ships[i]->GoalNode);
+			//NextNodes.Add(Ships[i]->GoalNode);
+			NextNodes.Add(WorldArray[(int)Ships[i]->GetActorLocation().Y / GRID_SIZE_WORLD][(int)Ships[i]->GetActorLocation().X / GRID_SIZE_WORLD]);
 		}
-		else
+		else if(Ships[i]->Path.Num() > 0) //
 		{
 			NextNodes.Add(Ships[i]->Path[0]);
 		}
@@ -485,6 +487,8 @@ void ALevelGenerator::CheckForCollisions()
 					UE_LOG(Collisions, Warning, TEXT("CRASH GOING TO OCCUR AT %d %d"), NextNodes[i]->X, NextNodes[i]->Y);
 					NumReplans++;
 					//REPLAN HERE
+					if (!Ships[i]->Path.IsEmpty()) Replan(Ships[i], CurrentNodes, NextNodes);
+					else if (!Ships[j]->Path.IsEmpty()) Replan(Ships[j], CurrentNodes, NextNodes);
 				}
 				else
 				{
@@ -503,6 +507,7 @@ void ALevelGenerator::CheckForCollisions()
 						UE_LOG(Collisions, Warning, TEXT("CRASH GOING TO OCCUR AT %d %d"), NextNodes[i]->X, NextNodes[i]->Y);
 						NumReplans++;
 						//REPLAN HERE
+						Replan(Ships[i], CurrentNodes, NextNodes);
 					}
 				}
 			}
@@ -549,7 +554,7 @@ void ALevelGenerator::CheckForCollisions()
 	}
 }
 
-void ALevelGenerator::CalculatePath(AShip* Ship, GridNode* Resource)
+void ALevelGenerator::CalculatePath(AShip* Ship, GridNode* Resource, TArray<GridNode*> RestrictedNodes)
 {
 	priority_queue<GridNode*, vector<GridNode*>, CompareGridNodes> OpenQueue;
 	
@@ -578,7 +583,7 @@ void ALevelGenerator::CalculatePath(AShip* Ship, GridNode* Resource)
 			
 		for(int j = 0; j < Neighbours.Num(); j++){
 			GridNode* CurrentNeighbour = Neighbours[j];
-			if(CurrentNeighbour->bIsInClosed){
+			if(CurrentNeighbour->bIsInClosed || RestrictedNodes.Contains(CurrentNeighbour)){ //
 				continue;
 			}
 			bool bPossibleGIsBetter = false;
@@ -671,9 +676,17 @@ GridNode* ALevelGenerator::FindGridNode(AActor* ActorResource)
 }
 
 //-----------------------------------YOUR CODE--------------------------------
-void ALevelGenerator::Replan(AShip* Ship)
+void ALevelGenerator::Replan(AShip* Ship, TArray<GridNode*> CurrentNodes, TArray<GridNode*> NextNodes)
 {
 	//INSERT REPLANNING HERE
+	if (CollisionAndReplanning)
+	{
+		Ship->Path.Empty();
+		TArray<GridNode*> RestrictedNodes;
+		RestrictedNodes.Append(CurrentNodes);
+		RestrictedNodes.Append(NextNodes);
+		CalculatePath(Ship, Ship->GoalNode, RestrictedNodes);
+	}
 }
 
 int ALevelGenerator::CollectResource(AShip* Ship, AResource* Resource)
@@ -762,7 +775,7 @@ int ALevelGenerator::DepositResource(AShip* Ship)
 	return Result;
 }
 
-AActor* ALevelGenerator::CalculateNearestGoal(AActor* Ship, TArray<GRID_TYPE> ResourceType = {GRID_TYPE::Wood, GRID_TYPE::Stone, GRID_TYPE::Grain})
+AActor* ALevelGenerator::CalculateNearestGoal(AActor* Ship, TArray<GRID_TYPE> ResourceType = {GRID_TYPE::Wood, GRID_TYPE::Stone, GRID_TYPE::Grain}, float ExpDuration = 0.0f)
 {
 	float ShortestPath = 999999;
 
@@ -773,11 +786,28 @@ AActor* ALevelGenerator::CalculateNearestGoal(AActor* Ship, TArray<GRID_TYPE> Re
 	for(AActor* Resource : Resources)
 	{
 		if(!IsValid(Resource)
-			|| Resource->GetName().Contains("Path")
-			/*|| ResourceOccupancy.Contains(Cast<AResource>(Resource))*/)
+			|| Resource->GetName().Contains("Path"))
 		{
 			continue;
 		}
+
+		if (ExpDuration > 0)
+		{
+			int XDist = abs((int)Resource->GetActorLocation().X / GRID_SIZE_WORLD - (int)Ship->GetActorLocation().X / GRID_SIZE_WORLD); 
+			int YDist = abs((int)Resource->GetActorLocation().Y / GRID_SIZE_WORLD - (int)Ship->GetActorLocation().Y / GRID_SIZE_WORLD);
+			int MinPathCount = XDist + YDist;
+			float Start = TimePassed + Cast<AShip>(Ship)->GetTravelTime(MinPathCount);
+			float End = Start + ExpDuration;
+			if(ResourceOccupancy.Contains(Cast<AResource>(Resource)))
+			{
+				Occupancy oc = ResourceOccupancy[Cast<AResource>(Resource)];
+				if(oc.CheckOverlaps(Start, End))
+				{
+					continue;
+				}
+			}
+		}
+		
 		for(GRID_TYPE Type : ResourceType)
 		{
 			if(Cast<AResource>(Resource)->ResourceType == Type)
@@ -793,6 +823,16 @@ AActor* ALevelGenerator::CalculateNearestGoal(AActor* Ship, TArray<GRID_TYPE> Re
 	}
 	
 	return ClosestResource;
+}
+
+void ALevelGenerator::AddOccupancy(AResource* Resource, AShip* Ship, int PathCount, float TimeRequired)
+{
+	Occupancy oc = Occupancy();
+	oc.Ship = Ship;
+	float Start = TimePassed + Ship->GetTravelTime(PathCount);
+	oc.StartTime = Start;
+	oc.EndTime = Start + TimeRequired;
+	ResourceOccupancy.Add(Resource, oc);
 }
 
 void ALevelGenerator::AlterPlannedResources(GRID_TYPE ResourceType, int Amount)

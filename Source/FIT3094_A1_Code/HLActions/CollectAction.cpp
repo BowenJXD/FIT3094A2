@@ -14,7 +14,7 @@ bool UCollectAction::SetupAction(AShip* Ship)
 	//Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, TArray{GRID_TYPE::Wood, GRID_TYPE::Stone, GRID_TYPE::Grain});
 
 	// find the most needed resource to build a university
-	ALevelGenerator* LG = Ship->LevelGenerator;
+	/*ALevelGenerator* LG = Ship->LevelGenerator;
 	float ShipTypeWeight = 5.0f;
 	GRID_TYPE ShipType = Ship->GetResourceType();
 	TArray<GRID_TYPE> Types;
@@ -23,7 +23,7 @@ bool UCollectAction::SetupAction(AShip* Ship)
 	float GrainRequired = (LG->TotalGrain + PlannedResourceAmount - 5.0f) / 5.0f - (ShipType == GRID_TYPE::Grain) * ShipTypeWeight;
 	/*float WoodRequired = (LG->TotalWood - 15.0f - (ShipType == GRID_TYPE::Wood) * ShipTypeWeight) / 15.0;
 	float StoneRequired = (LG->TotalStone - 10.0f - (ShipType == GRID_TYPE::Stone) * ShipTypeWeight) / 10.0f;
-	float GrainRequired = (LG->TotalGrain - 5.0f - (ShipType == GRID_TYPE::Grain) * ShipTypeWeight) / 5.0f;*/
+	float GrainRequired = (LG->TotalGrain - 5.0f - (ShipType == GRID_TYPE::Grain) * ShipTypeWeight) / 5.0f;#1#
 	float Min = FMath::Min(TArray{WoodRequired, StoneRequired, GrainRequired});
 	if (Min == WoodRequired) Types.Add(GRID_TYPE::Wood);
 	if (Min == StoneRequired) Types.Add(GRID_TYPE::Stone);
@@ -32,8 +32,8 @@ bool UCollectAction::SetupAction(AShip* Ship)
 	TArray<GRID_TYPE> ResultTypes = TArray{ShipType};
 	if (!Types.Contains(ShipType)) ResultTypes = Types; 
 	
-	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, ResultTypes);
-	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, GetResourceType());
+	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, ResultTypes);*/
+	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, TArray{GetResourceType()}, 5);
 	if (!Target) return false;
 	return Target != nullptr;
 }
@@ -73,48 +73,13 @@ void UCollectAction::ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorSt
 		{
 			SuccessorState[AgentGrain] ++;
 		}
-	}
-
-
-	PlannedResourceAmount = Cast<AResource>(Target)->ResourceCount;
-	Ship->LevelGenerator->AlterPlannedResources(Ship->GetResourceType(), PlannedResourceAmount);
-
-	/*if (Target) Agent->LevelGenerator->ResourceOccupancy.Add(Cast<AResource>(Target), Agent);*/
-	
+	}	
 }
+
 
 void UCollectAction::OnStart()
 {
-	float Interval;
-	switch (Agent->GetResourceType())
-	{
-	case GRID_TYPE::Wood:
-		Interval = 2;
-		if (Agent->AgentType == AShip::AGENT_TYPE::Woodcutter)
-		{
-			Interval /= 1.5;
-		}
-		break;
-	case GRID_TYPE::Stone:
-		Interval = 3;
-		if (Agent->AgentType == AShip::AGENT_TYPE::Stonemason)
-		{
-			Interval /= 1.5;
-		}
-		break;
-	case GRID_TYPE::Grain:
-		Interval = 5;
-		if (Agent->AgentType == AShip::AGENT_TYPE::Farmer)
-		{
-			Interval /= 1.5;
-		}
-		break;
-	default:
-		Interval = 0;
-		break;
-	}
 	
-	_Timer = Timer(Interval);
 }
 
 bool UCollectAction::OnTick(float DeltaTime)
@@ -134,4 +99,42 @@ bool UCollectAction::OnTick(float DeltaTime)
 GRID_TYPE UCollectAction::GetResourceType()
 {
 	return Cast<AResource>(Target)->ResourceType;
+}
+
+void UCollectAction::OnActionConfirmed(AShip* Ship)
+{
+	PlannedResourceAmount = Cast<AResource>(Target)->ResourceCount;
+	Ship->LevelGenerator->AlterPlannedResources(Ship->GetResourceType(), PlannedResourceAmount);
+
+	switch (Agent->GetResourceType())
+	{
+	case GRID_TYPE::Wood:
+		Duration = 2;
+		if (Agent->AgentType == AShip::AGENT_TYPE::Woodcutter)
+		{
+			Duration /= 1.5;
+		}
+		break;
+	case GRID_TYPE::Stone:
+		Duration = 3;
+		if (Agent->AgentType == AShip::AGENT_TYPE::Stonemason)
+		{
+			Duration /= 1.5;
+		}
+		break;
+	case GRID_TYPE::Grain:
+		Duration = 5;
+		if (Agent->AgentType == AShip::AGENT_TYPE::Farmer)
+		{
+			Duration /= 1.5;
+		}
+		break;
+	default:
+		Duration = 0;
+		break;
+	}
+	
+	_Timer = Timer(Duration);
+
+	if (Target) Agent->LevelGenerator->AddOccupancy(Cast<AResource>(Target), Agent, Agent->Path.Num(), Duration);
 }

@@ -13,7 +13,7 @@ void StatisticsExporter::Log()
     // Load existing CSV file if it exists
     if (!FFileHelper::LoadFileToString(Text, *Path))
     {
-        Text = "Time,Description,Path Length,Path Count,Average Path Length,Wood,Stone,Grain,Actual Uni,Exp Uni,Variance,Resource Point,Building Point,Total Point,Idle Time,Move Time,";
+        Text = "Time,Description,Path Length,Path Count,Average Path Length,Wood,Stone,Grain,Actual Uni,Exp Uni,Variance,Resource Point,Building Point,Total Point,Collision Ratio,Idle Time,Move Time,";
         for (auto& Pair : ExecuteTimes)
         {
             Text += Pair.Key + " Time,";
@@ -26,13 +26,13 @@ void StatisticsExporter::Log()
     float ExpUni = FMath::Min(TArray{Wood / 15, Stone / 10, Grain / 5});
     float Variance = Stone / 10 + Grain / 5 - 2 * Wood / 15;
     Text += FString::Printf(
-        TEXT("%s,,%d,%d,%d,%d,%d,%d,%d,%f,%f,%d,%d,%d,%f,%f,"),
+        TEXT("%s,,%d,%d,%d,%d,%d,%d,%d,%f,%f,%d,%d,%d,%f,%f,%f,"),
         *FDateTime::Now().ToString(),
         PathLength, PathCount, PathLength / PathCount,
         Wood, Stone, Grain, University, ExpUni, Variance,
         ResourcePoint, BuildingPoint,
         ResourcePoint + BuildingPoint,
-        IdleTime, MoveTime);
+        Ratio, IdleTime, MoveTime);
     for (auto& Pair : ExecuteTimes)
     {
         Text += FString::SanitizeFloat(Pair.Value) + ",";

@@ -24,6 +24,8 @@ public:
 	int Grain;
 	int University;
 
+	float Ratio;
+
 	float IdleTime;
 	float MoveTime;
 	TMap<FString, float> ExecuteTimes;

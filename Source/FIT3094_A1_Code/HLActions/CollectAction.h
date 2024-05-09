@@ -25,4 +25,8 @@ public:
 	virtual bool OnTick(float DeltaTime) override;
 
 	virtual GRID_TYPE GetResourceType();
+
+	virtual void OnActionConfirmed(AShip* Ship) override;
+	
+	int Duration;
 };

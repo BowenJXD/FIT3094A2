@@ -124,5 +124,7 @@ public:
 
 	GRID_TYPE GetResourceType();
 
+	float GetTravelTime(int PathCount);
+
 	// Collect n Destroy the resource point and change to shallow water
 };

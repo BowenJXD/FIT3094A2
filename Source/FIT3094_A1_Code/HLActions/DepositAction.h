@@ -21,4 +21,6 @@ public:
 	virtual void OnStart() override;
 
 	virtual bool OnTick(float DeltaTime) override;
+
+	virtual void OnActionConfirmed(AShip* Ship) override;
 };

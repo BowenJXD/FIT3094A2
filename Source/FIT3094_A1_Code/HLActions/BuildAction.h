@@ -34,4 +34,6 @@ public:
 	virtual bool OnTick(float DeltaTime) override;
 
 	virtual void OnComplete() override;
+
+	virtual void OnActionConfirmed(AShip* Ship) override;
 };

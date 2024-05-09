@@ -44,7 +44,7 @@ bool UCustomAction::Execute(AShip* Ship, float DeltaTime)
 		Result = OnTick(DeltaTime);
 	}
 	if (State == Finished) {
-		/*if (RequiresInRange()) Agent->LevelGenerator->ResourceOccupancy.Remove(Cast<AResource>(Target));*/
+		if (RequiresInRange()) Agent->LevelGenerator->ResourceOccupancy.Remove(Cast<AResource>(Target));
 		if (Result)
 		{
 			OnComplete();
