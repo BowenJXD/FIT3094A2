@@ -105,7 +105,7 @@ GRID_TYPE UCollectAction::GetResourceType()
 	return Cast<AResource>(Target)->ResourceType;
 }
 
-void UCollectAction::OnActionConfirmed(AShip* Ship)
+float UCollectAction::OnActionConfirmed(AShip* Ship, float PlanningTime)
 {
 	PlannedResourceAmount = Cast<AResource>(Target)->ResourceCount;
 	Ship->LevelGenerator->AlterPlannedResources(Ship->GetResourceType(), PlannedResourceAmount);
@@ -140,5 +140,10 @@ void UCollectAction::OnActionConfirmed(AShip* Ship)
 	
 	_Timer = Timer(Duration);
 
-	if (Target) Agent->LevelGenerator->AddOccupancy(Cast<AResource>(Target), Agent, Agent->Path.Num(), Duration);
+	if (Target)
+    {
+    	auto oc = Agent->LevelGenerator->AddOccupancy(Cast<AResource>(Target), Agent, PlannedLocation, PlanningTime, 5);
+    	return oc.EndTime;
+    }
+    return 0;
 }

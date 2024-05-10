@@ -65,6 +65,11 @@ struct Occupancy
 		}
 		return false;
 	}
+
+	float GetDuration()
+	{
+		return EndTime - StartTime;
+	}
 };
 
 UCLASS()
@@ -197,7 +202,7 @@ public:
 
 	TMap<AResource*, Occupancy> ResourceOccupancy = TMap<AResource*, Occupancy>();
 
-	void AddOccupancy(AResource* Resource, AShip* Ship, int PathCount, float TimeRequired);
+	Occupancy AddOccupancy(AResource* Resource, AShip* Ship, GridNode* StartPoint, float BaseTime, float TimeRequired);
 
 	void AlterPlannedResources(GRID_TYPE ResourceType, int Amount);
 

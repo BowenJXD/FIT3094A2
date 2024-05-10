@@ -845,16 +845,17 @@ AActor* ALevelGenerator::CalculateNearestGoal(GridNode* Node, TArray<GRID_TYPE> 
 	return ClosestResource;
 }
 
-void ALevelGenerator::AddOccupancy(AResource* Resource, AShip* Ship, int PathCount, float TimeRequired)
+Occupancy ALevelGenerator::AddOccupancy(AResource* Resource, AShip* Ship, GridNode* StartPoint, float BaseTime, float TimeRequired)
 {
 	Occupancy oc = Occupancy();
 	oc.Ship = Ship;
 
-	int PathLength = CalculateManhattanDistanceBetween(GetNode(Resource), GetNode(Ship));
-	float Start = TimePassed + Ship->GetTravelTime(PathLength) * 1;
+	int PathLength = CalculateManhattanDistanceBetween(GetNode(Resource), StartPoint);
+	float Start = BaseTime + Ship->GetTravelTime(PathLength) * 1;
 	oc.StartTime = Start;
 	oc.EndTime = Start + TimeRequired + Ship->GetTravelTime(PathLength) * 0.2;
 	ResourceOccupancy.Add(Resource, oc);
+	return oc;
 }
 
 void ALevelGenerator::AlterPlannedResources(GRID_TYPE ResourceType, int Amount)

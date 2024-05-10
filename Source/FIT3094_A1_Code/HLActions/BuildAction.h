@@ -19,6 +19,7 @@ class FIT3094_A1_CODE_API UBuildAction : public UCustomAction
 
 public:
 	BUILDING_TYPE BuildingType = BUILDING_TYPE::University;
+	
 	TSubclassOf<ABuilding> BuildingBlueprint;
 
 	virtual bool RequiresInRange() override;
@@ -35,5 +36,7 @@ public:
 
 	virtual void OnComplete() override;
 
-	virtual void OnActionConfirmed(AShip* Ship) override;
+	virtual float OnActionConfirmed(AShip* Ship, float PlanningTime) override;
+
+	virtual BUILDING_TYPE GetBuildingType() PURE_VIRTUAL(UBuildAction::GetBuildingType, return BUILDING_TYPE::University;);
 };

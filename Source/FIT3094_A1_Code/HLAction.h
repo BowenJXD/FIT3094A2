@@ -50,6 +50,6 @@ public:
 	virtual bool RequiresInRange() PURE_VIRTUAL(UGOAPAction::RequiresInRange, return false;);
 
 	// ---------------- New Code ----------------
-	virtual void OnActionConfirmed(AShip* Ship) PURE_VIRTUAL(UGOAPAction::OnActionConfirmed, return;);
+	virtual float OnActionConfirmed(AShip* Ship, float PlanningTime) PURE_VIRTUAL(UGOAPAction::OnActionConfirmed, return 0;);
 };
 

@@ -63,8 +63,13 @@ bool UDepositAction::OnTick(float DeltaTime)
 	return true;
 }
 
-void UDepositAction::OnActionConfirmed(AShip* Ship)
+float UDepositAction::OnActionConfirmed(AShip* Ship, float PlanningTime)
 {
-	if (Target) Agent->LevelGenerator->AddOccupancy(Cast<AResource>(Target), Agent, Agent->Path.Num(), 1);
+	if (Target)
+	{
+		auto oc = Agent->LevelGenerator->AddOccupancy(Cast<AResource>(Target), Agent, PlannedLocation, PlanningTime, 1);
+		return oc.EndTime;
+	}
+	return 0;
 }
 

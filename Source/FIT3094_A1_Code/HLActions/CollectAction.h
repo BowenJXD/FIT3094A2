@@ -26,7 +26,7 @@ public:
 
 	virtual GRID_TYPE GetResourceType();
 
-	virtual void OnActionConfirmed(AShip* Ship) override;
+	virtual float OnActionConfirmed(AShip* Ship, float PlanningTime) override;
 	
 	int Duration;
 };

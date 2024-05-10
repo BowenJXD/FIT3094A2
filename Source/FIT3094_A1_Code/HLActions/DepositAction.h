@@ -22,5 +22,5 @@ public:
 
 	virtual bool OnTick(float DeltaTime) override;
 
-	virtual void OnActionConfirmed(AShip* Ship) override;
+	virtual float OnActionConfirmed(AShip* Ship, float PlanningTime) override;
 };

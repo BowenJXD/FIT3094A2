@@ -59,13 +59,13 @@ bool UCustomAction::Execute(AShip* Ship, float DeltaTime)
 	if (State == Finished) {
 		if (RequiresInRange() && Agent->LevelGenerator->ResourceOccupancy.Contains(Cast<AResource>(Target)))
 		{
-			/*Occupancy* oc = Agent->LevelGenerator->ResourceOccupancy.Find(Cast<AResource>(Target));
+			Occupancy* oc = Agent->LevelGenerator->ResourceOccupancy.Find(Cast<AResource>(Target));
 			float End = oc->EndTime;
 			float Now = Agent->LevelGenerator->TimePassed;
 			float Diff = (Now - End) / (oc->EndTime - oc->StartTime);
 			UE_LOG(LogTemp, Warning,
 			       TEXT("Action %s to finish at %f but actually finished at %f, having a diff of %f (%f)"),
-			       *GetName(), End, Now, Now - End, Diff);*/
+			       *GetName(), End, Now, Now - End, Diff);
 			Agent->LevelGenerator->ResourceOccupancy.Remove(Cast<AResource>(Target));
 		}
 		if (Result)

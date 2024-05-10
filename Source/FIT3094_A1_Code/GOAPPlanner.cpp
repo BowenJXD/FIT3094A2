@@ -4,6 +4,7 @@
 #include "GOAPPlanner.h"
 
 #include "HLAction.h"
+#include "LevelGenerator.h"
 #include "Ship.h"
 
 bool GOAPPlanner::Plan(AShip* Ship, bool bForwardSearch)
@@ -85,11 +86,12 @@ bool GOAPPlanner::Plan(AShip* Ship, bool bForwardSearch)
 				CurrentNode = CurrentNode->Parent;
 			}
 
+			float BaseTime = Ship->LevelGenerator->TimePassed;
 			// for (int i = 0; i < ActionsToTake.Num(); i++)
 			for(int i = ActionsToTake.Num() - 1; i >= 0; i--)
 			{
 				Ship->PlannedActions.Add(ActionsToTake[i]);
-				ActionsToTake[i]->OnActionConfirmed(Ship); // New Code
+				BaseTime = ActionsToTake[i]->OnActionConfirmed(Ship, BaseTime); // New Code
 			}
 			return true;
 		}
@@ -227,6 +229,9 @@ int GOAPPlanner::NodeHeuristic(TMap<STATE_KEY, int>& StartState, TMap<STATE_KEY,
 				}
 			}
 		}
+		//
+		Heuristic += FMath::Abs(State[NumPoints] - StartState[NumPoints]);
+		//
 	}
 	return Heuristic;
 }
