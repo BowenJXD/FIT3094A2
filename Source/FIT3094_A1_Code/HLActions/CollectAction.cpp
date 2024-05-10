@@ -33,7 +33,7 @@ bool UCollectAction::SetupAction(AShip* Ship)
 	if (!Types.Contains(ShipType)) ResultTypes = Types; 
 	
 	Target = Ship->LevelGenerator->CalculateNearestGoal(Ship, ResultTypes);*/
-	Target = Ship->LevelGenerator->CalculateNearestGoal(PlannedLocation, TArray{GetResourceType()}, 5);
+	Target = Ship->LevelGenerator->CalculateNearestGoal(PlannedLocation, TArray{GetResourceType()}, 5, Target);
 	if (!Target) return false;
 	return Target != nullptr;
 }

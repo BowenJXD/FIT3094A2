@@ -791,7 +791,7 @@ int ALevelGenerator::DepositResource(AShip* Ship)
 	return Result;
 }
 
-AActor* ALevelGenerator::CalculateNearestGoal(GridNode* Node, TArray<GRID_TYPE> ResourceType = {GRID_TYPE::Wood, GRID_TYPE::Stone, GRID_TYPE::Grain}, float ExpDuration = 0.0f)
+AActor* ALevelGenerator::CalculateNearestGoal(GridNode* Node, TArray<GRID_TYPE> ResourceType = {GRID_TYPE::Wood, GRID_TYPE::Stone, GRID_TYPE::Grain}, float ExpDuration = 0.0f, AActor* RestricedNode = nullptr)
 {
 	float ShortestPath = 999999;
 
@@ -802,7 +802,8 @@ AActor* ALevelGenerator::CalculateNearestGoal(GridNode* Node, TArray<GRID_TYPE> 
 	for(AActor* Resource : Resources)
 	{
 		if(!IsValid(Resource)
-			|| Resource->GetName().Contains("Path"))
+			|| Resource->GetName().Contains("Path")
+			|| (RestricedNode && Resource == RestricedNode))
 		{
 			continue;
 		}

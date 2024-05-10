@@ -44,4 +44,6 @@ public:
 	virtual void OnFail();
 
 	GridNode* PlannedLocation;
+
+	virtual bool OnActionAborted(AShip* Ship) override;
 };

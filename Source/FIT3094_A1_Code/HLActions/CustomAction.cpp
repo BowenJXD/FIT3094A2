@@ -94,3 +94,9 @@ void UCustomAction::OnComplete()
 void UCustomAction::OnFail()
 {
 }
+
+bool UCustomAction::OnActionAborted(AShip* Ship)
+{
+	bool Result = SetupAction(Ship);
+	return Result;
+}

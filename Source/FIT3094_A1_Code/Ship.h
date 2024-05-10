@@ -112,7 +112,12 @@ public:
 	
 	TArray<TTuple<STATE_KEY, int, char>> PickGoal();
 	void OnPlanFailed(TMap<STATE_KEY, int> FailedGoalState);
-	void OnPlanAborted(UHLAction* FailedAction);
+	/**
+	 * @brief 
+	 * @param FailedAction 
+	 * @return Whether to continue or not
+	 */
+	bool OnPlanAborted(UHLAction* FailedAction);
 	void AddActions();
 	bool FSMPlan();
 	

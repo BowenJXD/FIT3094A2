@@ -194,7 +194,7 @@ public:
 
 	int DepositResource(AShip* Ship);
 
-	AActor* CalculateNearestGoal(GridNode* Node, TArray<GRID_TYPE> ResourceType, float ExpDuration);
+	AActor* CalculateNearestGoal(GridNode* Node, TArray<GRID_TYPE> ResourceType, float ExpDuration, AActor* RestricedNode);
 
 	int PlannedWood = 0;
 	int PlannedStone = 0;

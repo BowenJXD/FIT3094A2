@@ -15,7 +15,7 @@ bool UBuildAction::RequiresInRange()
 bool UBuildAction::SetupAction(AShip* Ship)
 {
 	Super::SetupAction(Ship);
-	Target = Ship->LevelGenerator->CalculateNearestGoal(PlannedLocation, TArray{GRID_TYPE::BuildingSlot}, ABuilding::GetTimeRequired(GetBuildingType()));
+	Target = Ship->LevelGenerator->CalculateNearestGoal(PlannedLocation, TArray{GRID_TYPE::BuildingSlot}, ABuilding::GetTimeRequired(GetBuildingType()), Target);
 	return Target != nullptr;
 }
 
