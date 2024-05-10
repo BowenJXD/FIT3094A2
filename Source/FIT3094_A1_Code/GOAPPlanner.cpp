@@ -48,24 +48,24 @@ bool GOAPPlanner::Plan(AShip* Ship, bool bForwardSearch)
 
 	while (Open.Num() > 0)
 	{
-		//float SmallestF = Open[0]->RunningCost + NodeHeuristic(StartNode->State, Open[0]->State, GoalConditions);
-		float SmallestF = Open[0]->RunningCost + NodeHeuristic(GoalNode->State, Open[0]->State, GoalConditions);
-		int SmallestFIndex = 0;
+		float LargestF = -Open[0]->RunningCost + NodeHeuristic(StartNode->State, Open[0]->State, GoalConditions);
+		// float LargestF = Open[0]->RunningCost + NodeHeuristic(GoalNode->State, Open[0]->State, GoalConditions);
+		int LargestIndex = 0;
 		
 		for(int i = 1; i < Open.Num(); i++)
 		{
-			//int CurrentF = Open[i]->RunningCost + NodeHeuristic(StartNode->State, Open[i]->State, GoalConditions);
-			int CurrentF = Open[i]->RunningCost + NodeHeuristic(GoalNode->State, Open[i]->State, GoalConditions);
+			int CurrentF = -Open[i]->RunningCost + NodeHeuristic(StartNode->State, Open[i]->State, GoalConditions);
+			// int CurrentF = Open[i]->RunningCost + NodeHeuristic(GoalNode->State, Open[i]->State, GoalConditions);
 			//if(CurrentF < SmallestF)
-			if(CurrentF > SmallestF)
+			if(CurrentF > LargestF)
 			{
-				SmallestF = CurrentF;
-				SmallestFIndex = i;
+				LargestF = CurrentF;
+				LargestIndex = i;
 			}
 		}
 		
-		GOAPNode* CurrentNode = Open[SmallestFIndex];
-		Open.RemoveAt(SmallestFIndex);
+		GOAPNode* CurrentNode = Open[LargestIndex];
+		Open.RemoveAt(LargestIndex);
 		Closed.Add(CurrentNode);
 
 		if(CurrentNode->RunningCost > MaxRunningCost)
@@ -229,9 +229,6 @@ int GOAPPlanner::NodeHeuristic(TMap<STATE_KEY, int>& StartState, TMap<STATE_KEY,
 				}
 			}
 		}
-		//
-		Heuristic += FMath::Abs(State[NumPoints] - StartState[NumPoints]);
-		//
 	}
 	return Heuristic;
 }

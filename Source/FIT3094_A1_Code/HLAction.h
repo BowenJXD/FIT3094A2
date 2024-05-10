@@ -23,7 +23,7 @@ public:
 	
 	bool bInRange;
 
-	float ActionCost;
+	float ActionCost = 1;
 
 	//Called by the FSM when executing a planned action
 	//Returns true if the action has finished executing, false otherwise
@@ -51,5 +51,7 @@ public:
 
 	// ---------------- New Code ----------------
 	virtual float OnActionConfirmed(AShip* Ship, float PlanningTime) PURE_VIRTUAL(UGOAPAction::OnActionConfirmed, return 0;);
+
+	virtual bool OnActionAborted(AShip* Ship) PURE_VIRTUAL(UGOAPAction::OnActionAborted, return false;);
 };
 

@@ -4,6 +4,9 @@
 #include "GOAPPlanner.h"
 #include "LevelGenerator.h"
 #include "HLActions/BuildAction.h"
+#include "HLActions/BuildMarketAction.h"
+#include "HLActions/BuildTheatreAction.h"
+#include "HLActions/BuildUniversityAction.h"
 #include "HLActions/CollectAction.h"
 #include "HLActions/CollectGrainAction.h"
 #include "HLActions/CollectStoneAction.h"
@@ -92,7 +95,16 @@ void AShip::OnIdleTick(float DeltaTime)
 			//Change the bForwardSearch parameter in this function call to false if using backwards planning
 			if(GOAPPlanner::Plan(this, true))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("%s has found a plan. Executing plan!"), *GetName());
+				FString Plan = "";
+				for (int i = 0; i < PlannedActions.Num(); i++)
+				{
+					Plan += PlannedActions[i]->GetName();
+					if (i < PlannedActions.Num() - 1)
+					{
+						Plan += " -> ";
+					}
+				}
+				UE_LOG(LogTemp, Warning, TEXT("%s has found a plan: %s. Executing plan!"), *GetName(), *Plan);
 				ChangeState(State_Execute);
 			}
 			else
@@ -288,8 +300,11 @@ void AShip::OnExecuteTick(float DeltaTime)
 
 			if(!IsActionSuccessful)
 			{
-				ChangeState(State_Idle);
-				OnPlanAborted(CurrentAction);
+				// only change plan if it is really aborted.
+				if (OnPlanAborted(CurrentAction))
+				{
+					ChangeState(State_Idle);
+				}
 				
 			}
 		}
@@ -402,7 +417,7 @@ TMap<STATE_KEY, int> AShip::GetWorldState()
 	WorldState.Add(TotalWood, LevelGenerator->TotalWood);
 	WorldState.Add(TotalStone, LevelGenerator->TotalStone);
 	WorldState.Add(TotalGrain, LevelGenerator->TotalGrain);
-	WorldState.Add(TimeLeft, LevelGenerator->TimeLimit);
+	WorldState.Add(TimeLeft, LevelGenerator->TimeLimit - LevelGenerator->TimePassed);
 
 	//
 	GridNode* Current = LevelGenerator->GetNode(this);
@@ -450,7 +465,7 @@ TArray<TTuple<STATE_KEY, int, char>> AShip::PickGoal()
 		TArray<GRID_TYPE> ResultTypes = TArray{ShipType};
 		if (!Types.Contains(ShipType)) ResultTypes = Types; 
 	
-		auto Target = LevelGenerator->CalculateNearestGoal(LevelGenerator->GetNode(this), ResultTypes, 0);
+		auto Target = LevelGenerator->CalculateNearestGoal(LevelGenerator->GetNode(this), ResultTypes, 0, nullptr);
 
 		AResource* Resource = Cast<AResource>(Target);
 		switch (Resource->ResourceType)
@@ -476,8 +491,14 @@ void AShip::OnPlanFailed(TMap<STATE_KEY, int> FailedGoalState)
 {
 }
 
-void AShip::OnPlanAborted(UHLAction* FailedAction)
+bool AShip::OnPlanAborted(UHLAction* FailedAction)
 {
+	bool Result = FailedAction->OnActionAborted(this);
+	if (!Result)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s has aborted the plan. The action %s has failed."), *GetName(), *FailedAction->GetName());
+	}
+	return Result;
 }
 
 void AShip::AddActions()
@@ -486,10 +507,14 @@ void AShip::AddActions()
 	{
 		AvailableActions.Add(UBuildAction::StaticClass());
 	}*/
-	AvailableActions.Add(UBuildAction::StaticClass());
+	AvailableActions.Add(UBuildUniversityAction::StaticClass());
+	AvailableActions.Add(UBuildTheatreAction::StaticClass());
+	AvailableActions.Add(UBuildMarketAction::StaticClass());
+	
 	AvailableActions.Add(UCollectWoodAction::StaticClass());
 	AvailableActions.Add(UCollectStoneAction::StaticClass());
-	AvailableActions.Add(UCollectGrainAction::StaticClass());	
+	AvailableActions.Add(UCollectGrainAction::StaticClass());
+	
 	AvailableActions.Add(UDepositAction::StaticClass());
 }
 

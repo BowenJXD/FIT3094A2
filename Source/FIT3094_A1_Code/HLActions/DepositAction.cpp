@@ -11,7 +11,7 @@ bool UDepositAction::RequiresInRange()
 bool UDepositAction::SetupAction(AShip* Ship)
 {
 	Super::SetupAction(Ship);
-	Target = Ship->LevelGenerator->CalculateNearestGoal(PlannedLocation, TArray{GRID_TYPE::Home}, 1);
+	Target = Ship->LevelGenerator->CalculateNearestGoal(PlannedLocation, TArray{GRID_TYPE::Home}, 1, Target);
 	return Target != nullptr;
 }
 
@@ -41,6 +41,8 @@ void UDepositAction::ApplyEffects(AShip* Ship, TMap<STATE_KEY, int>& SuccessorSt
 	SuccessorState[TotalWood] += Wood;
 	SuccessorState[TotalStone] += Stone;
 	SuccessorState[TotalGrain] += Grain;
+
+	SuccessorState[NumPoints] += Wood + 2 * Stone + 3 * Grain;
 }
 
 void UDepositAction::OnStart()
